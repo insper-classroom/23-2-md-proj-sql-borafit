@@ -340,14 +340,14 @@ class Membro(BaseModel):
     sobrenome: str | None = None
     genero: str = Field(min_length = 5, description="Genero precisa ter pelo menos cinco letras",examples=["Não definido"])
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", examples=["01234567891"]) # pattern só permite números
-    plano_id: int
-    ativo: int
+    plano_id: int = Field( description="Identificador do plano na qual a pessoa está matriculada", examples =["1"])
+    ativo: int = Field( description="0: se o membro não está ativo e 1: se o membro está ativo", examples =["0"])
     telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos (2)DDD+9+número(8) , sem espaços!",  examples=["98765432100"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido" ,examples=["exemplo@email.com"])
     personal_id: int = Field(gt=0, description="Colocando o id do personal", examples =["1"])
-    restricao_medica: str | None = None
-    data_inscricao: date = Field(default = datetime.now(), description="Colocando a data atual, ou seja, na hora do cadastro")
-    ultima_presenca: date | None = None
+    restricao_medica: str | None = Field(gt=0, description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
+    data_inscricao: date = Field(default = datetime.now(), description="Colocando a data atual, ou seja, a hora do cadastro")
+    ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -379,16 +379,15 @@ async def adicionar_membro(membro: Membro):
     data["membro"] = membros
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4,default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
-
     return membro
 
 class Plano(BaseModel):
     plano_id: int = Field( default= len(planos)+1 )
-    nome: str
-    descricao: str | None
+    nome: str 
+    descricao: str | None = Field( description="Mais detalhes sobre o plano")
     preco: float = Field(gt=0, description="O preço precisa ser maior que zero!")
-    aulas_em_grupo: int
-    promocao: int
+    aulas_em_grupo: int =Field( description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = ["0"])
+    promocao: int = Field( description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = ["1"])
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -413,14 +412,14 @@ async def adicionar_plano(plano: Plano):
 
 class Personal(BaseModel):
     personal_id: int = Field( default= len(personais)+1 )
-    nome : str
+    nome : str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str 
     membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha")
-    cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )") # pattern só permite números
+    cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )",examples=["01234567891"]) # pattern só permite números
     genero: str 
     telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",examples=["11999523499"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", examples=["exemplo@dominio.com"])
-    salario: float = Field(gt=0, description="O salário precisa ser maior que zero!")
+    salario: float = Field(gt=0, description="O salário precisa ser maior que zero!", examples=[2000.0])
     model_config = {
         "json_schema_extra": {
             "examples": [
