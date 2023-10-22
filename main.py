@@ -342,12 +342,30 @@ class Membro(BaseModel):
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", examples=["01234567891"]) # pattern só permite números
     plano_id: int
     ativo: int
-    telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",  examples=["98765432100"])
+    telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos (2)DDD+9+número(8) , sem espaços!",  examples=["98765432100"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido" ,examples=["exemplo@email.com"])
     personal_id: int = Field(gt=0, description="Colocando o id do personal", examples =["1"])
     restricao_medica: str | None = None
     data_inscricao: date = Field(default = datetime.now(), description="Colocando a data atual, ou seja, na hora do cadastro")
     ultima_presenca: date | None = None
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "nome" : "Raul",
+                    "sobrenome" : "Seixas",
+                    "genero" : "Masculino",
+                    "cpf" : "66569678302",
+                    "plano_id" : 2,
+                    "ativo": 1,
+                    "telefone": "11940028922",
+                    "email": "exemplo@exemplo.com",
+                    "personal_id": 1,
+                    "restrição_medica": "nenhuma"
+                }
+            ]
+        }
+    }
 
 def serializar_datetime(obj):
     if isinstance(obj, datetime):
@@ -397,12 +415,28 @@ class Personal(BaseModel):
     personal_id: int = Field( default= len(personais)+1 )
     nome : str
     sobrenome: str 
-    membro_id : list[int]
+    membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha")
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )") # pattern só permite números
     genero: str 
-    telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!")
-    email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido")
+    telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",examples=["11999523499"])
+    email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", examples=["exemplo@dominio.com"])
     salario: float = Field(gt=0, description="O salário precisa ser maior que zero!")
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "nome" : "Amethysta",
+                    "sobrenome": "Perola",
+                    "membro_id": [1,2],
+                    "cpf": "11223344556",
+                    "genero": "Feminino",
+                    "telefone": "23919283746",
+                    "email": "amethypearl@borafit.com",
+                    "salario": 3000.0
+                }
+            ]
+        }
+    }
 
 @app.post("/personal")
 async def adicionar_personal(personal: Personal):
