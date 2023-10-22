@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from fastapi import FastAPI
+from fastapi import FastAPI,  HTTPException
 
 import json
 
@@ -145,9 +145,17 @@ def listar_planos_com_aula_em_grupo():
 def filtro_membro_caracteristicas(caracteristica,filtro):
     dicio = {}
     for membro in membros:
-        if membro[f'{caracteristica}'] == filtro:
+        if membro[f'{caracteristica}'].lower() == filtro:
             dicio[membro["membro_id"]] = f"{membro['nome']} {membro['sobrenome']}"
     return dicio
+
+def filtra_personal_caracteristica(caracteristica,filtro):
+    dicio = {}
+    for personal in personais:
+        if personal[f'{caracteristica}'].lower() == filtro:
+            dicio[personal["personal_id"]] = f"{personal['nome']} {personal['sobrenome']}"
+    return dicio
+
 
 @app.get("/membro/id/{membro_id}")
 async def devolve_informacoes_do_membro(membro_id: int):
@@ -172,30 +180,75 @@ async def listar_membros_com_restricao(restricao_medica: str):
     restricao_medica = restricao_medica.lower()
     response_dict = filtro_membro_caracteristicas('restricao_medica',restricao_medica)
     if response_dict == {}:
-        return "Não existe ninguém cadastrado com essa restrição médica :("
+        return "Não existe ninguém cadastrado com essa restrição médica :)"
     return response_dict
 
 @app.get("/membro/plano/nome/{nome}")
 async def listar_membros_do_plano_nome(nome: str):
     nome = nome.lower() 
+    id_plano = None
     for plano in planos:
         if plano["nome"] == nome:
             id_plano = plano["plano_id"]
+    if id_plano is None:
+        return  "Não existe nenhum plano com esse nome :("
     response_dict = filtro_membro_caracteristicas('plano_id',id_plano)
     if response_dict == {}:
         return "Não existe ninguém cadastrado nesse plano :("
     return response_dict
 
-# @app.get("/personal/{nome}")
+@app.get("/personal/nome/{nome}")
+async def listar_personais_por_nome(nome:str):
+    nome = nome.lower()
+    response_dict = filtra_personal_caracteristica('nome',nome)
+    if response_dict == {}:
+        return "Não existe nenhum personal com esse nome :("
+    return response_dict
+    
+@app.get("/personal/membro/{membro_id}")
+async def informacoes_personal_de_um_membro(membro_id: int):
+    personal_id = None
+    for membro in membros:
+        if membro['membro_id'] == membro_id:
+            if membro["personal_id"] != None:
+                personal_id = membro["personal_id"]
+            else:
+                return "O membro não tem nenhum personal :("
+    for personal in personais:
+        if personal["personal_id"] == personal_id:
+            return personal
+    return "Não existe um id para o personal ligado ao membro ;-;"
+    
 
-# @app.get("/personal/membro/{membro_id}")
+@app.get("/plano/id/{plano_id}")
+async def informacoes_plano_id(plano_id: int):
+    for plano in planos:
+        if plano["plano_id"] == plano_id:
+            return plano
+    return "Não existe um plano com o esse id :("
 
-# @app.get("/plano/{plano_id}")
+@app.get("/plano/nome/{nome}")
+async def infomacoes_plano_nome(nome: str):
+    nome = nome.lower() 
+    for plano in planos:
+        if plano["nome"].lower() == nome:
+            return plano
+        
+    #raise HTTPException(status_code=404, detail="Item not found")
+    return "Não existe nenhum plano com esse nome :("
+    
 
-# @app.get("/plano/{nome}")
+@app.get("/plano/promocao")
+async def plano_promocao():
+    response_dict = {}
+    for plano in planos:
+        if plano["promocao"] == 1:
+            response_dict[plano['plano_id']] = f"{plano['nome']}"
+    if response_dict == {}:
+        return "Nao tem nenhum palno com promocao :("
+    return response_dict
 
-# @app.get("/plano/promocao")
-
+### DELETES:
 @app.delete("/membro/{membro_id}")
 def deletar_membro(membro_id: int):
     membros = data.get("membro", [])
