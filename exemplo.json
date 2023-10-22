@@ -1,0 +1,76 @@
+{
+    "plano": [
+      {
+        "plano_id": 1,
+        "preco": 50.00,
+        "descricao": "Plano Básico",
+        "nome": "Básico",
+        "aulas_em_grupo": 1,
+        "promocao": 0
+      },
+      {
+        "plano_id": 2,
+        "preco": 75.00,
+        "descricao": "Plano Premium",
+        "nome": "Premium",
+        "aulas_em_grupo": 1,
+        "promocao": 1
+      }
+    ],
+    "personal": [
+      {
+        "personal_id": 1,
+        "nome": "Fulano",
+        "sobrenome": "Silva",
+        "membro_id": null,
+        "cpf" : "12345678901",
+        "genero": 1,
+        "telefone": "1234567890",
+        "email": "fulano@example.com",
+        "salario": 2000.00
+      },
+      {
+        "personal_id": 2,
+        "nome": "Ciclano",
+        "sobrenome": "Santos",
+        "membro_id": null,
+        "genero": 2,
+        "telefone": "9876543210",
+        "email": "ciclano@example.com",
+        "salario": 2500.00
+      }
+    ],
+    "membro": [
+      {
+        "membro_id": 1,
+        "nome": "Cliente 1",
+        "sobrenome": "Silva",
+        "genero": "Masculino",
+        "cpf": "12345678901",
+        "plano_id": 1,
+        "ativo": 1,
+        "data_inscricao": "2023-10-20T12:00:00",
+        "ultima_presenca": "2023-10-20T18:30:00",
+        "telefone": "999999999",
+        "email": "cliente1@example.com",
+        "personal_id": 1,
+        "restricao_medica": "Nenhuma"
+      },
+      {
+        "membro_id": 2,
+        "nome": "Cliente 2",
+        "sobrenome": "Santos",
+        "genero": "Feminino",
+        "cpf": "98765432109",
+        "plano_id": 2,
+        "ativo": 1,
+        "data_inscricao": "2023-10-21T10:30:00",
+        "ultima_presenca": "2023-10-21T17:15:00",
+        "telefone": "888888888",
+        "email": "cliente2@example.com",
+        "personal_id": 2,
+        "restricao_medica": "Nenhuma"
+      }
+    ]
+  }
+  
