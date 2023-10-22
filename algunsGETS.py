@@ -10,10 +10,13 @@ app = FastAPI()
 with open('exemplo.json', 'r') as file:
     data = json.load(file)
 
-
+membros = data.get("membro", [])
+personais = data.get("personal", [])
+planos = data.get("plano", [])
+### GETS: 
 @app.get("/membro/nome/{nome}")
 def listar_membros_por_nome(nome: str):
-    membros = data.get("membro", [])
+
     membros_dict = {}
     for membro in membros:
         if nome == membro["nome"]:
@@ -25,7 +28,6 @@ def listar_membros_por_nome(nome: str):
 
 @app.get("/membro/ativo/{ativo}")
 def listar_membros_por_estado(ativo: int):
-    membros = data.get("membro", [])
     membros_dict = {}
     for membro in membros:
         if ativo == membro["ativo"]:
@@ -37,7 +39,6 @@ def listar_membros_por_estado(ativo: int):
 
 @app.get("/membro/plano/{plano_id}")
 def listar_membros_por_planoID(plano_id: int):
-    membros = data.get("membro", [])
     membros_dict = {}
     for membro in membros:
         if plano_id == membro["plano_id"]:
@@ -49,7 +50,7 @@ def listar_membros_por_planoID(plano_id: int):
 
 @app.get("/personal/personal_id/{personal_id}")
 def personal_por_personalID(personal_id: int):
-    personais = data.get("personal", [])
+
     for personal in personais:
         if personal_id == personal["personal_id"]:
             return personal
@@ -70,8 +71,6 @@ def listar_personal_por_genero(genero: str):
 
 @app.get("/personal/personal_id/{personal_id}/membros")
 def listar_membros_com_personal_id(personal_id: int):
-    personais = data.get("personal", [])
-    membros = data.get("membro", [])
     personal_membros_dict = {}
     membros_lista = []
     personalId = 0
@@ -92,8 +91,6 @@ def listar_membros_com_personal_id(personal_id: int):
 
 @app.get("/plano/plano_id/{plano_id}/membros")
 def listar_membro_do_plano_id(plano_id: int):
-    planos = data.get("plano", [])
-    membros = data.get("membro", [])
     plano_membros_dict = {}
     membros_lista = []
     planoId = 0
@@ -114,8 +111,6 @@ def listar_membro_do_plano_id(plano_id: int):
 
 @app.get("/plano/nome/{nome}/membros")
 def listar_membro_do_plano_nome(nome: str):
-    planos = data.get("plano", [])
-    membros = data.get("membro", [])
     planoId = 0
     plano_membros_dict = {}
     membros_lista = []
@@ -145,3 +140,58 @@ def listar_planos_com_aula_em_grupo():
         return "Não há nenhuma aula em grupo :("
     return planos_dict
 
+
+### gets lincoln :
+def filtro_membro_caracteristicas(caracteristica,filtro):
+    dicio = {}
+    for membro in membros:
+        if membro[f'{caracteristica}'] == filtro:
+            dicio[membro["membro_id"]] = f"{membro['nome']} {membro['sobrenome']}"
+    return dicio
+
+@app.get("/membro/id/{membro_id}")
+async def devolve_informacoes_do_membro(membro_id: int):
+    for membro in membros:
+        if membro["membro_id"] == membro_id:
+            return membro
+    return "Não há nenhum membro com esse id :("
+
+
+@app.get("/membro/genero/{genero}")
+async def listar_membros_de_um_genero(genero: str):
+    genero = genero.lower()
+    response_dict = filtro_membro_caracteristicas('genero',genero)
+    if response_dict == {}:
+        return "Não existe ninguém cadastrado com esse gênero :("
+    return response_dict
+
+
+
+@app.get("/membro/restricao/{restricao_medica}")
+async def listar_membros_com_restricao(restricao_medica: str):
+    restricao_medica = restricao_medica.lower()
+    response_dict = filtro_membro_caracteristicas('restricao_medica',restricao_medica)
+    if response_dict == {}:
+        return "Não existe ninguém cadastrado com essa restrição médica :("
+    return response_dict
+
+@app.get("/membro/plano/nome/{nome}")
+async def listar_membros_do_plano_nome(nome: str):
+    nome = nome.lower() 
+    for plano in planos:
+        if plano["nome"] == nome:
+            id_plano = plano["plano_id"]
+    response_dict = filtro_membro_caracteristicas('plano_id',id_plano)
+    if response_dict == {}:
+        return "Não existe ninguém cadastrado nesse plano :("
+    return response_dict
+
+# @app.get("/personal/{nome}")
+
+# @app.get("/personal/membro/{membro_id}")
+
+# @app.get("/plano/{plano_id}")
+
+# @app.get("/plano/{nome}")
+
+# @app.get("/plano/promocao")
