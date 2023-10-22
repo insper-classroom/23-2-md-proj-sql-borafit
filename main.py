@@ -1,9 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import date
 from fastapi import FastAPI,  HTTPException
-from fastapi.encoders import jsonable_encoder
 from datetime import datetime
-from typing import Optional
 
 import json
 
@@ -384,8 +382,8 @@ async def adicionar_membro(membro: Membro):
 class Plano(BaseModel):
     plano_id: int = Field( default= len(planos)+1 )
     nome: str 
-    descricao: str | None = Field( description="Mais detalhes sobre o plano")
-    preco: float = Field(gt=0, description="O preço precisa ser maior que zero!")
+    descricao: str | None = Field( description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
+    preco: float = Field(gt=0, description="O preço precisa ser maior que zero!",examples=[100])
     aulas_em_grupo: int =Field( description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = ["0"])
     promocao: int = Field( description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = ["1"])
     model_config = {
@@ -414,7 +412,7 @@ class Personal(BaseModel):
     personal_id: int = Field( default= len(personais)+1 )
     nome : str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str 
-    membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha")
+    membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )",examples=["01234567891"]) # pattern só permite números
     genero: str 
     telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",examples=["11999523499"])
@@ -447,17 +445,29 @@ async def adicionar_personal(personal: Personal):
 
 # PUTS :
 class MembroUpdate(BaseModel):
-    nome: str | None = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None)
-    sobrenome: str | None = None
-    genero: str | None = None
-    cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", default=None) # pattern só permite números
-    plano_id: int | None = None
-    ativo: int | None = None
+    nome: str | None = Field(min_length = 2, description="Nome do membro,precisa ter pelo menos duas letras", default=None,examples=["Raul"])
+    sobrenome: str | None = Field(min_length = 2, description="Sobrenome do membro, precisa ter pelo menos duas letras", default=None,examples=["Silva"])
+    genero: str | None = Field(min_length = 5, description="Genero do membro, precisa ter pelo menos cinco letras",examples=["Não definido"])
+    cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", examples=["01234567891"]) 
+    plano_id: int | None = Field(default=None, description="Identificador do plano na qual a pessoa está matriculada", examples =["1"])
+    ativo: int | None = Field(default=None, description="0: se o membro não está ativo e 1: se o membro está ativo", examples =["0"])
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
     email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
-    personal_id: int | None = None
-    restricao_medica: str | None = None
-    ultima_presenca: date | None = None
+    personal_id: int | None = Field(default=None,gt=0, description="Colocando o id do personal", examples =["1"])
+    restricao_medica: str | None = Field(gt=0, description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
+    ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "cpf" : "66569678302",
+                    "plano_id" : 1,
+                    "personal_id": 1,
+                    "restrição_medica": "Problema na coluna"
+                }
+            ]
+        }
+    }
 
 @app.put("/membro/{membro_id}")
 async def update_membro(membro_id: int, membro: MembroUpdate):
@@ -478,14 +488,25 @@ async def update_membro(membro_id: int, membro: MembroUpdate):
     return membros
 
 class PersonalUpdate(BaseModel):
-    nome: str | None = None
+    nome: str | None = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str | None = None
-    membro_id: list[int] | None = None
+    membro_id: list[int] | None = Field(default=None,description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])
     cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", default=None) # pattern só permite números
     genero: str | None = None
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
     email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
     salario: float | None = Field(gt=0, description="O salário precisa ser maior que zero!", default=None)
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "membro_id" : [3],
+                    "telefone" : "88938472651",
+                    "salario": 2900.0
+                }
+            ]
+        }
+    }
 
 @app.put("/personal/{personal_id}")
 async def update_personal(personal_id: int, personal: PersonalUpdate):
@@ -506,11 +527,21 @@ async def update_personal(personal_id: int, personal: PersonalUpdate):
     return personais
 
 class PlanoUpdate(BaseModel):
-    preco: float | None = Field(gt=0, description="O preço precisa ser maior que zero!", default=None)
-    descricao: str | None = None
     nome: str | None = None
-    aulas_em_grupo: int | None = None
-    promocao: int | None = None
+    descricao: str | None =  Field(default=None ,description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
+    preco: float | None = Field(default=None,gt=0, description="O preço precisa ser maior que zero!",examples=[100])
+    aulas_em_grupo: int | None = Field(default=None, description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = ["0"])
+    promocao: int | None = Field( default=None,description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = ["1"])
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "preco" : 150.0,
+                    "promocao" :0
+                }
+            ]
+        }
+    }
 
 @app.put("/plano/{plano_id}")
 async def update_plano(plano_id: int, plano: PlanoUpdate):
