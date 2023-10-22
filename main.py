@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import date
 from fastapi import FastAPI,  HTTPException
 from datetime import datetime
-
+from typing import Optional
 
 import json
 
@@ -17,8 +17,7 @@ personais = data.get("personal", [])
 planos = data.get("plano", [])
 ### GETS: 
 @app.get("/membro/nome/{nome}")
-def listar_membros_por_nome(nome: str):
-
+async def listar_membros_por_nome(nome: str):
     membros_dict = {}
     for membro in membros:
         if nome == membro["nome"]:
@@ -29,7 +28,7 @@ def listar_membros_por_nome(nome: str):
 
 
 @app.get("/membro/ativo/{ativo}")
-def listar_membros_por_estado(ativo: int):
+async def listar_membros_por_estado(ativo: int):
     membros_dict = {}
     for membro in membros:
         if ativo == membro["ativo"]:
@@ -40,7 +39,7 @@ def listar_membros_por_estado(ativo: int):
 
 
 @app.get("/membro/plano/{plano_id}")
-def listar_membros_por_planoID(plano_id: int):
+async def listar_membros_por_planoID(plano_id: int):
     membros_dict = {}
     for membro in membros:
         if plano_id == membro["plano_id"]:
@@ -51,7 +50,7 @@ def listar_membros_por_planoID(plano_id: int):
 
 
 @app.get("/personal/personal_id/{personal_id}")
-def personal_por_personalID(personal_id: int):
+async def personal_por_personalID(personal_id: int):
 
     for personal in personais:
         if personal_id == personal["personal_id"]:
@@ -60,7 +59,7 @@ def personal_por_personalID(personal_id: int):
     
 
 @app.get("/personal/genero/{genero}")
-def listar_personal_por_genero(genero: str):
+async def listar_personal_por_genero(genero: str):
     personais = data.get("personal", [])
     personal_dict = {}
     for personal in personais:
@@ -72,7 +71,7 @@ def listar_personal_por_genero(genero: str):
 
 
 @app.get("/personal/personal_id/{personal_id}/membros")
-def listar_membros_com_personal_id(personal_id: int):
+async def listar_membros_com_personal_id(personal_id: int):
     personal_membros_dict = {}
     membros_lista = []
     personalId = 0
@@ -92,7 +91,7 @@ def listar_membros_com_personal_id(personal_id: int):
 
 
 @app.get("/plano/plano_id/{plano_id}/membros")
-def listar_membro_do_plano_id(plano_id: int):
+async def listar_membro_do_plano_id(plano_id: int):
     plano_membros_dict = {}
     membros_lista = []
     planoId = 0
@@ -112,7 +111,7 @@ def listar_membro_do_plano_id(plano_id: int):
 
 
 @app.get("/plano/nome/{nome}/membros")
-def listar_membro_do_plano_nome(nome: str):
+async def listar_membro_do_plano_nome(nome: str):
     planoId = 0
     plano_membros_dict = {}
     membros_lista = []
@@ -132,7 +131,7 @@ def listar_membro_do_plano_nome(nome: str):
 
 
 @app.get("/plano/aulas_em_grupo")
-def listar_planos_com_aula_em_grupo():
+async def listar_planos_com_aula_em_grupo():
     planos = data.get("plano", [])
     planos_dict = {}
     for plano in planos:
@@ -290,18 +289,17 @@ def deletar_plano(plano_id: int):
     return planos
 
 
-
 # POSTS :
 class Membro(BaseModel):
     membro_id: int = Field( default= len(membros)+1 ) # depois podemos utilizar uuid4()
     nome: str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras")
-    sobrenome: str | None
+    sobrenome: str | None = None
     genero: str
-    cpf: str
+    cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )") # pattern só permite números
     plano_id: int
     ativo: int
-    telefone: str | None
-    email: str
+    telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!")
+    email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido")
     personal_id: int
     restricao_medica: str | None = None
     data_inscricao: date = Field(default = datetime.now(), description="Colocando a data atual, ou seja, na hora do cadastro")
@@ -356,3 +354,73 @@ def adicionar_personal(personal: Personal):
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4)  # indent=4 para formatar o JSON de forma legível
     return personal
+
+# PUTS :
+class MembroUpdate(BaseModel):
+    nome: str | None = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None)
+    sobrenome: str | None = None
+    genero: str | None = None
+    cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", default=None) # pattern só permite números
+    plano_id: int | None = None
+    ativo: int | None = None
+    telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
+    email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
+    personal_id: int | None = None
+    restricao_medica: str | None = None
+    ultima_presenca: date | None = None
+
+@app.put("/membro/{membro_id}")
+async def update_membro(membro_id: int, membro: MembroUpdate):
+    membro = membro.dict()
+    for memb in membros:
+        if memb["membro_id"] == membro_id:
+            for chave, valor in membro.items():
+                if valor is not None:
+                    memb[chave] = valor
+    data["membro"] = membros
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
+    return membros
+
+class PersonalUpdate(BaseModel):
+    nome: str | None = None
+    sobrenome: str | None = None
+    membro_id: list[int] | None = None
+    cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", default=None) # pattern só permite números
+    genero: str | None = None
+    telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
+    email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
+    salario: float | None = Field(gt=0, description="O salário precisa ser maior que zero!", default=None)
+
+@app.put("/personal/{personal_id}")
+async def update_personal(personal_id: int, personal: PersonalUpdate):
+    personal = personal.dict()
+    for pers in personais:
+        if pers["personal_id"] == personal_id:
+            for chave, valor in personal.items():
+                if valor is not None:
+                    pers[chave] = valor
+    data["personal"] = personais
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
+    return personais
+
+class PlanoUpdate(BaseModel):
+    preco: float | None = Field(gt=0, description="O preço precisa ser maior que zero!", default=None)
+    descricao: str | None = None
+    nome: str | None = None
+    aulas_em_grupo: int | None = None
+    promocao: int | None = None
+
+@app.put("/plano/{plano_id}")
+async def update_plano(plano_id: int, plano: PlanoUpdate):
+    plano = plano.dict()
+    for plan in planos:
+        if plan["plano_id"] == plano_id:
+            for chave, valor in plano.items():
+                if valor is not None:
+                    plan[chave] = valor
+    data["plano"] = planos
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
+    return planos
