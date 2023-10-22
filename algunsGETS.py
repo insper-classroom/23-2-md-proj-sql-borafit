@@ -141,7 +141,6 @@ def listar_planos_com_aula_em_grupo():
     return planos_dict
 
 
-<<<<<<< HEAD
 ### gets lincoln :
 def filtro_membro_caracteristicas(caracteristica,filtro):
     dicio = {}
@@ -196,7 +195,7 @@ async def listar_membros_do_plano_nome(nome: str):
 # @app.get("/plano/{nome}")
 
 # @app.get("/plano/promocao")
-=======
+
 @app.delete("/membro/{membro_id}")
 def deletar_membro(membro_id: int):
     membros = data.get("membro", [])
@@ -234,4 +233,3 @@ def deletar_plano(plano_id: int):
     if plano_existe == 0:
         return "Não existe um plano com esse id para ser deletado"    
     return planos
->>>>>>> f810f72c3cfde0dc723d04e52a0618fae4627406
