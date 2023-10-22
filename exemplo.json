@@ -3,8 +3,8 @@
       {
         "plano_id": 1,
         "preco": 50.00,
-        "descricao": "Plano Básico",
-        "nome": "Básico",
+        "descricao": "Plano Basico",
+        "nome": "Basico",
         "aulas_em_grupo": 1,
         "promocao": 0
       },
@@ -15,6 +15,14 @@
         "nome": "Premium",
         "aulas_em_grupo": 1,
         "promocao": 1
+      },
+      {
+        "plano_id": 3,
+        "preco": 95.00,
+        "descricao": "Plano Intensivo",
+        "nome": "Intensivo",
+        "aulas_em_grupo": 0,
+        "promocao": 1
       }
     ],
     "personal": [
@@ -24,7 +32,7 @@
         "sobrenome": "Silva",
         "membro_id": null,
         "cpf" : "12345678901",
-        "genero": 1,
+        "genero": "Masculino",
         "telefone": "1234567890",
         "email": "fulano@example.com",
         "salario": 2000.00
@@ -34,8 +42,18 @@
         "nome": "Ciclano",
         "sobrenome": "Santos",
         "membro_id": null,
-        "genero": 2,
+        "genero": "Masculino",
         "telefone": "9876543210",
+        "email": "ciclano@example.com",
+        "salario": 2500.00
+      },
+      {
+        "personal_id": 3,
+        "nome": "Maria",
+        "sobrenome": "Lima",
+        "membro_id": null,
+        "genero": "Feminino",
+        "telefone": "9867534201",
         "email": "ciclano@example.com",
         "salario": 2500.00
       }
@@ -43,7 +61,7 @@
     "membro": [
       {
         "membro_id": 1,
-        "nome": "Cliente 1",
+        "nome": "Pedro",
         "sobrenome": "Silva",
         "genero": "Masculino",
         "cpf": "12345678901",
@@ -52,13 +70,13 @@
         "data_inscricao": "2023-10-20T12:00:00",
         "ultima_presenca": "2023-10-20T18:30:00",
         "telefone": "999999999",
-        "email": "cliente1@example.com",
+        "email": "pedros@example.com",
         "personal_id": 1,
         "restricao_medica": "Nenhuma"
       },
       {
         "membro_id": 2,
-        "nome": "Cliente 2",
+        "nome": "Giovana",
         "sobrenome": "Santos",
         "genero": "Feminino",
         "cpf": "98765432109",
@@ -67,7 +85,22 @@
         "data_inscricao": "2023-10-21T10:30:00",
         "ultima_presenca": "2023-10-21T17:15:00",
         "telefone": "888888888",
-        "email": "cliente2@example.com",
+        "email": "giovanas@example.com",
+        "personal_id": 2,
+        "restricao_medica": "Nenhuma"
+      },
+      {
+        "membro_id": 3,
+        "nome": "Pedro",
+        "sobrenome": "Castro",
+        "genero": "Masculino",
+        "cpf": "12345678909",
+        "plano_id": 2,
+        "ativo": 0,
+        "data_inscricao": "2023-11-23T11:30:00",
+        "ultima_presenca": "2023-11-23T19:15:00",
+        "telefone": "111111111",
+        "email": "pedroc@example.com",
         "personal_id": 2,
         "restricao_medica": "Nenhuma"
       }
