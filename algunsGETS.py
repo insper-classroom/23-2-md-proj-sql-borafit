@@ -1,13 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from fastapi import FastAPI,  HTTPException
+from datetime import datetime
+
 
 import json
 
 app = FastAPI()
-
+file_json = 'exemplo.json'
 # Carregando o JSON
-with open('exemplo.json', 'r') as file:
+with open(file_json, 'r') as file:
     data = json.load(file)
 
 membros = data.get("membro", [])
@@ -286,3 +288,71 @@ def deletar_plano(plano_id: int):
     if plano_existe == 0:
         return "Não existe um plano com esse id para ser deletado"    
     return planos
+
+
+
+# POSTS :
+class Membro(BaseModel):
+    membro_id: int = Field( default= len(membros)+1 ) # depois podemos utilizar uuid4()
+    nome: str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras")
+    sobrenome: str | None
+    genero: str
+    cpf: str
+    plano_id: int
+    ativo: int
+    telefone: str | None
+    email: str
+    personal_id: int
+    restricao_medica: str | None = None
+    data_inscricao: date = Field(default = datetime.now(), description="Colocando a data atual, ou seja, na hora do cadastro")
+    ultima_presenca: date | None = None
+
+def serializar_datetime(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
+@app.post("/membro")
+def adicionar_membro(membro: Membro):
+    membros.append(membro.dict())
+    data["membro"] = membros
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4,default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
+
+    return membro
+
+class Plano(BaseModel):
+    plano_id: int = Field( default= len(planos)+1 )
+    preco: float = Field(gt=0, description="O preço precisa ser maior que zero!")
+    descricao: str | None
+    nome: str
+    aulas_em_grupo: int
+    promocao: int
+
+@app.post("/plano")
+def adicionar_plano(plano: Plano):
+    planos.append(plano.dict())
+    data["plano"] = planos
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4)  # indent=4 para formatar o JSON de forma legível
+    return plano
+
+class Personal(BaseModel):
+    personal_id: int = Field( default= len(personais)+1 )
+    nome : str
+    sobrenome: str 
+    membro_id : list[int]
+    cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )") # pattern só permite números
+    genero: str 
+    telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!")
+    email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido")
+    salario: float = Field(gt=0, description="O salário precisa ser maior que zero!")
+
+@app.post("/personal")
+def adicionar_personal(personal: Personal):
+    personais.append(personal.dict())
+    data["personal"] = personais
+    with open(file_json, "w") as arquivo:
+        json.dump(data, arquivo, indent=4)  # indent=4 para formatar o JSON de forma legível
+    return personal
