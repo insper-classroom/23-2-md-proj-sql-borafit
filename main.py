@@ -462,11 +462,16 @@ class MembroUpdate(BaseModel):
 @app.put("/membro/{membro_id}")
 async def update_membro(membro_id: int, membro: MembroUpdate):
     membro = membro.dict()
+    membro_existe = None
     for memb in membros:
         if memb["membro_id"] == membro_id:
             for chave, valor in membro.items():
                 if valor is not None:
                     memb[chave] = valor
+            membro_existe = 1
+    if membro_existe is None:
+        detalhe = "Não existe um membro com esse id para ser alterado"    
+        raise HTTPException(status_code=404, detail=detalhe)
     data["membro"] = membros
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
@@ -485,11 +490,16 @@ class PersonalUpdate(BaseModel):
 @app.put("/personal/{personal_id}")
 async def update_personal(personal_id: int, personal: PersonalUpdate):
     personal = personal.dict()
+    personal_existe = None
     for pers in personais:
         if pers["personal_id"] == personal_id:
             for chave, valor in personal.items():
                 if valor is not None:
                     pers[chave] = valor
+            personal_existe = 1
+    if personal_existe is None:
+        detalhe = "Não existe um personal com esse id para ser alterado"    
+        raise HTTPException(status_code=404, detail=detalhe)
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
@@ -505,11 +515,16 @@ class PlanoUpdate(BaseModel):
 @app.put("/plano/{plano_id}")
 async def update_plano(plano_id: int, plano: PlanoUpdate):
     plano = plano.dict()
+    plano_existe = None
     for plan in planos:
         if plan["plano_id"] == plano_id:
             for chave, valor in plano.items():
                 if valor is not None:
                     plan[chave] = valor
+            plano_existe = 1
+    if plano_existe is None:
+        detalhe = "Não existe um plano com esse id para ser alterado"    
+        raise HTTPException(status_code=404, detail=detalhe)
     data["plano"] = planos
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
