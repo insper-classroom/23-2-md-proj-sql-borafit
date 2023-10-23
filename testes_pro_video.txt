@@ -2,7 +2,7 @@
 /membro/nome/{nome}
 /membro/genero/{genero}
 /membro/ativo/{ativo}
-/membro/restricao/{restricao_medica}
+/membro/restricao_medica
 /membro/plano/{plano_id}
 /membro/plano/nome/{nome}
 /personal/personal_id/{personal_id}

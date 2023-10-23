@@ -196,7 +196,7 @@ async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do 
     nome = nome.lower() 
     id_plano = None
     for plano in planos:
-        if plano["nome"] == nome:
+        if plano["nome"].lower() == nome:
             id_plano = plano["plano_id"]
     if id_plano is None:
         detalhe = "Não existe nenhum plano com esse nome :("
