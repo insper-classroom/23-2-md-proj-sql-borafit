@@ -479,7 +479,7 @@ async def adicionar_plano(plano:Annotated[Plano,Body(description="Corpo para env
     planos.append(plano.dict())
     data["plano"] = planos
     with open(file_json, "w") as arquivo:
-        json.dump(data, arquivo, indent=4)  # indent=4 para formatar o JSON de forma legível
+        json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
     return plano
 
 
@@ -488,7 +488,7 @@ async def adicionar_personal(personal: Annotated[Personal,Body(description="Corp
     personais.append(personal.dict())
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
-        json.dump(data, arquivo, indent=4)  # indent=4 para formatar o JSON de forma legível
+        json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
     return personal
 
 # PUTS :

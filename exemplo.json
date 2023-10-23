@@ -44,7 +44,8 @@
             "nome": "Sofia",
             "sobrenome": "Castro",
             "membro_id": [
-                3, 5
+                3,
+                5
             ],
             "genero": "Feminino",
             "telefone": "75342798601",
