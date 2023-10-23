@@ -25,7 +25,7 @@ class Membro(BaseModel):
     ativo: int = Field( description="0: se o membro não está ativo e 1: se o membro está ativo", examples =[0])
     telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos (2)DDD+9+número(8) , sem espaços!",  examples=["98765432100"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido" ,examples=["exemplo@email.com"])
-    personal_id: int = Field(gt=0, description="Colocando o id do personal", examples =[1])
+    personal_id: int | None = Field(gt=0, description="Colocando o id do personal", examples =[1], default=None)
     restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
     data_inscricao: date = Field(default = datetime.now().date(), description="Colocando a data atual, ou seja, a hora do cadastro")
     ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
