@@ -27,32 +27,6 @@
     ],
     "personal": [
         {
-            "personal_id": 1,
-            "nome": "Fulano",
-            "sobrenome": "Silva",
-            "membro_id": [
-                1
-            ],
-            "cpf": "12345678901",
-            "genero": "Masculino",
-            "telefone": "1234567890",
-            "email": "fulano@example.com",
-            "salario": 2000.0
-        },
-        {
-            "personal_id": 2,
-            "nome": "Ciclano",
-            "sobrenome": "Santos",
-            "membro_id": [
-                2,
-                3
-            ],
-            "genero": "Masculino",
-            "telefone": "9876543210",
-            "email": "ciclano@example.com",
-            "salario": 2500.0
-        },
-        {
             "personal_id": 3,
             "nome": "Maria",
             "sobrenome": "Lima",
@@ -60,18 +34,34 @@
             "genero": "Feminino",
             "telefone": "9867534201",
             "email": "ciclano@example.com",
-            "salario": 2500.0
+            "salario": 2500.0,
+            "cpf": "12345678901"
         },
         {
             "personal_id": 4,
             "nome": "Victor",
             "sobrenome": "Assis",
-            "membro_id": [],
+            "membro_id": [
+                7
+            ],
             "cpf": "98765332121",
             "genero": "Masculino",
             "telefone": "9876533210",
             "email": "victao@example.com",
             "salario": 2500.0
+        },
+        {
+            "personal_id": 5,
+            "nome": "Maciel",
+            "sobrenome": "Calebe",
+            "membro_id": [
+                2
+            ],
+            "cpf": "12345687001",
+            "genero": "Masculino",
+            "telefone": "1234567890",
+            "email": "macielcv@example.com",
+            "salario": 2000.0
         }
     ],
     "membro": [
@@ -87,7 +77,7 @@
             "ultima_presenca": "2023-10-20",
             "telefone": "99999999999",
             "email": "pedros@example.com",
-            "personal_id": 1,
+            "personal_id": null,
             "restricao_medica": "Nenhuma"
         },
         {
@@ -102,22 +92,7 @@
             "ultima_presenca": "2023-10-21",
             "telefone": "88888888888",
             "email": "giovanas@example.com",
-            "personal_id": 2,
-            "restricao_medica": "Nenhuma"
-        },
-        {
-            "membro_id": 3,
-            "nome": "Pedro",
-            "sobrenome": "Castro",
-            "genero": "Masculino",
-            "cpf": "12345678909",
-            "plano_id": 2,
-            "ativo": 0,
-            "data_inscricao": "2023-11-23",
-            "ultima_presenca": "2023-11-23",
-            "telefone": "11111111111",
-            "email": "pedroc@example.com",
-            "personal_id": 2,
+            "personal_id": null,
             "restricao_medica": "Nenhuma"
         },
         {
@@ -130,7 +105,7 @@
             "ativo": 1,
             "telefone": "99899999911",
             "email": "rangeru@example.com",
-            "personal_id": 2,
+            "personal_id": null,
             "restricao_medica": null,
             "data_inscricao": "2023-10-22",
             "ultima_presenca": null
@@ -145,37 +120,52 @@
             "ativo": 1,
             "telefone": "99899119999",
             "email": "rangeru@example.com",
-            "personal_id": 2,
+            "personal_id": null,
             "restricao_medica": null,
             "data_inscricao": "2023-10-22"
         },
         {
-            "membro_id": 6,
-            "nome": "yukdsadaa",
-            "sobrenome": null,
-            "genero": "Feminino",
-            "cpf": "12345678901",
-            "plano_id": 1,
+            "membro_id": 5,
+            "nome": "Guilherme",
+            "sobrenome": "Martins",
+            "genero": "Masculino",
+            "cpf": "01928374659",
+            "plano_id": 3,
             "ativo": 1,
-            "telefone": "99899119999",
-            "email": "rangeru@example.com",
+            "telefone": "99999999999",
+            "email": "Guilhermm@example.com",
             "personal_id": 2,
-            "restricao_medica": null,
+            "restricao_medica": "Nenhuma",
+            "data_inscricao": "2023-10-23",
+            "ultima_presenca": null
+        },
+        {
+            "membro_id": 6,
+            "nome": "Guilherme",
+            "sobrenome": "Martins",
+            "genero": "Masculino",
+            "cpf": "01928374659",
+            "plano_id": 3,
+            "ativo": 1,
+            "telefone": "99999999999",
+            "email": "Guilhermm@example.com",
+            "personal_id": 2,
+            "restricao_medica": "Nenhuma",
             "data_inscricao": "2023-10-23",
             "ultima_presenca": null
         },
         {
             "membro_id": 7,
-            "nome": "yukdsadaa",
-            "sobrenome": null,
+            "nome": "Fabricia",
+            "sobrenome": "Souza",
             "genero": "Feminino",
-            "cpf": "12345678901",
-            "plano_id": 1,
+            "cpf": "01928374659",
+            "plano_id": 2,
             "ativo": 1,
-            "telefone": "99899119999",
-            "email": "rangeru@example.com",
-            "personal_id": 2,
-            "restricao_medica": null,
+            "telefone": "99999999999",
+            "email": "Guilhermm@example.com",
+            "personal_id": 4,
+            "restricao_medica": "Nenhuma",
             "data_inscricao": "2023-10-23",
             "ultima_presenca": null
         }

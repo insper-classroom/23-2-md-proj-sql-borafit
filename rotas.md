@@ -121,6 +121,18 @@
 Aqui recebemos uma formatação em json para adicionar.
 
 * ``/membro``
+    *        {
+                "nome": "Guilhermina",
+                "sobrenome": "Arantes",
+                "genero": "Feminino",
+                "cpf": "01928374659",
+                "plano_id": 3,
+                "ativo": 1,
+                "telefone": "99999999999",
+                "email": "Guilhermm@example.com",
+                "personal_id": 4,
+                "restricao_medica": "Nenhuma"
+            }
 * ``/plano``
 * ``/personal``
 

@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
-from fastapi import FastAPI,  HTTPException
+from pydantic import BaseModel, Field  
+from fastapi import FastAPI,  HTTPException, Path
 from datetime import datetime ,date
-
+from typing import Annotated
 import json
 
 app = FastAPI()
@@ -47,6 +47,7 @@ class Membro(BaseModel):
             ]
         }
     }
+
 class Plano(BaseModel):
     plano_id: int = Field( default= len(planos)+1 )
     nome: str 
@@ -120,20 +121,30 @@ def filtra_e_devolve_lista_personais(nome_filtro,filtro):
                 personais_lista.append(Personal(**personal))
     return personais_lista
                 
-
+def filtra_e_devolve_lista_planos(nome_filtro,filtro):
+    planos_lista = []
+    if type(filtro) is str:
+        for plano in planos:
+            if filtro.lower() == plano[nome_filtro].lower():
+                planos_lista.append(Plano(**plano))
+    else:
+        for plano in planos:
+            if filtro == plano[nome_filtro]:
+                planos_lista.append(Plano(**plano))
+    return planos_lista
 
 ### GETS MEMBROS: 
 @app.get("/membro/nome/{nome}", response_model=list[Membro])
-async def listar_membros_por_nome(nome: str):
+async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro que voce quer receber as informações", example="Fulano")]):
     membros_lista = filtra_e_devolve_lista_membros("nome",nome)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse nome"
-        raise HTTPException(status_code=400, detail=detalhe)
+        raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
 
 
 @app.get("/membro/ativo/{ativo}", response_model=list[Membro])
-async def listar_membros_por_estado(ativo: int):
+async def listar_membros_por_estado(ativo:  Annotated[int, Path(title="lista de membros pelo nome",description="listinha com os membros que são filtrados pelo nome", example="Fulano")]):
     membros_lista = filtra_e_devolve_lista_membros("ativo",ativo)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse estado"
@@ -213,84 +224,133 @@ async def listar_personal_por_genero(genero: str):
     return personal_lista
 
 
-@app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Personal])
+@app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Membro])
 async def listar_membros_com_personal_id(personal_id: int):
     personal_membros_dict = {}
     membros_lista = []
     personalId = 0
     for personal in personais:
         if personal_id == personal["personal_id"]:
-            personalId = personal["personal_id"]
+            personalId = personal["personal_id"] 
     if personalId != 0:
-        for membro in membros:
-            if membro["personal_id"] == personal_id:
-                membros_lista.append(membro)
+        membros_lista = filtra_e_devolve_lista_membros("personal_id",personal_id)
         personal_membros_dict[personal_id] = membros_lista
-    if not personal_membros_dict:
+    else:
         detalhe = "Não existe um personal com esse id"
         raise HTTPException(status_code=400, detail=detalhe)
     if not membros_lista:
         detalhe = "Nenhum membro tem esse personal"   
         raise HTTPException(status_code=400, detail=detalhe)     
     
-    return personal_membros_dict
+    return membros_lista
+
+@app.get("/personal/nome/{nome}", response_model=list[Personal])
+async def listar_personais_por_nome(nome:str):
+    personal_lista = filtra_e_devolve_lista_personais("nome",nome)
+    if not personal_lista:
+        detalhe = "Não existe nenhum personal com esse nome :("
+        raise HTTPException(status_code=400, detail=detalhe)
+    return personal_lista
+    
+@app.get("/personal/membro/{membro_id}", response_model=Personal)
+async def informacoes_personal_de_um_membro(membro_id: int):
+    personal_id = None
+    for membro in membros:
+        if membro['membro_id'] == membro_id:
+            if membro["personal_id"] != None:
+                personal_id = membro["personal_id"]
+            else:
+                detalhe = "O membro não tem nenhum personal :("
+                raise HTTPException(status_code=400, detail=detalhe)
+    for personal in personais:
+        if personal["personal_id"] == personal_id:
+            print(personal)
+            response_personal = Personal(**personal)
+            return response_personal
+    detalhe = "Não existe um id para o personal ligado ao membro ;-;"
+    raise HTTPException(status_code=400, detail=detalhe)
+    
 
 
-@app.get("/plano/plano_id/{plano_id}/membros")
+### GET PLANOS
+@app.get("/plano/plano_id/{plano_id}/membros", response_model=list[Membro])
 async def listar_membro_do_plano_id(plano_id: int):
-    plano_membros_dict = {}
     membros_lista = []
     planoId = 0
     for plano in planos:
         if plano_id == plano["plano_id"]:
             planoId = plano["plano_id"]
     if planoId != 0:
-        for membro in membros:
-            if membro["plano_id"] == plano_id:
-                membros_lista.append(membro)
-        plano_membros_dict[plano_id] = membros_lista
-    if not plano_membros_dict:
+        membros_lista = filtra_e_devolve_lista_membros("plano_id",plano_id)
+    else:
         detalhe = "Não existe um plano com esse id"
         raise HTTPException(status_code=400, detail=detalhe)
     if not membros_lista:
         detalhe = "Não existe um membro com esse plano"
         raise HTTPException(status_code=400, detail=detalhe)
-    return plano_membros_dict
+    return membros_lista
 
 
-@app.get("/plano/nome/{nome}/membros")
+@app.get("/plano/nome/{nome}/membros", response_model=list[Membro])
 async def listar_membro_do_plano_nome(nome: str):
     planoId = 0
-    plano_membros_dict = {}
     membros_lista = []
     for plano in planos:
-        if nome == plano["nome"]:
+        if nome.lower() == plano["nome"].lower():
             planoId = plano["plano_id"]
     if planoId != 0:
-        for membro in membros:
-            if membro["plano_id"] == planoId:
-                membros_lista.append(membro)
-        plano_membros_dict[nome] = membros_lista
-    if not plano_membros_dict:
+        membros_lista = filtra_e_devolve_lista_membros("plano_id",planoId)
+    else:
         detalhe = "Não existe um plano com esse nome"
         raise HTTPException(status_code=400, detail=detalhe)
     if not membros_lista:
         detalhe = "Não existe um membro com esse plano"
         raise HTTPException(status_code=400, detail=detalhe)
-    return plano_membros_dict
+    return membros_lista
 
 
-@app.get("/plano/aulas_em_grupo")
+@app.get("/plano/aulas_em_grupo", response_model=list[Plano])
 async def listar_planos_com_aula_em_grupo():
-    planos = data.get("plano", [])
-    planos_dict = {}
+    planos_list = []
     for plano in planos:
         if 1 == plano["aulas_em_grupo"]:
-            planos_dict[plano['plano_id']] = f"{plano['nome']}"
-    if not planos_dict:
+            planos_list.append(Plano(**plano))
+    if not planos_list:
         detalhe = "Não há nenhuma aula em grupo :("
         raise HTTPException(status_code=400, detail=detalhe)
-    return planos_dict
+    return planos_list
+
+
+
+@app.get("/plano/id/{plano_id}", response_model=Plano)
+async def informacoes_plano_id(plano_id: int):
+    for plano in planos:
+        if plano["plano_id"] == plano_id:
+            return Plano(**plano)
+    detalhe = "Não existe um plano com o esse id :("
+    raise HTTPException(status_code=400, detail=detalhe)
+
+@app.get("/plano/nome/{nome}", response_model=Plano)
+async def infomacoes_plano_nome(nome: str):
+    nome = nome.lower() 
+    for plano in planos:
+        if plano["nome"].lower() == nome:
+            return Plano(**plano)
+        
+    detalhe = "Não existe nenhum plano com esse nome :("
+    raise HTTPException(status_code=400, detail=detalhe)
+    
+
+@app.get("/plano/promocao", response_model=list[Plano])
+async def plano_promocao():
+    planos_list = []
+    for plano in planos:
+        if plano["promocao"] == 1:
+            planos_list.append(Plano(**plano))
+    if  not planos_list:
+        detalhe = "Nao tem nenhum palno com promocao :("
+        raise HTTPException(status_code=400, detail=detalhe)
+    return planos_list
 
 
 ### gets lincoln :
@@ -309,70 +369,10 @@ def filtra_personal_caracteristica(caracteristica,filtro):
     return dicio
 
 
-
-
-
-
-
-@app.get("/personal/nome/{nome}")
-async def listar_personais_por_nome(nome:str):
-    nome = nome.lower()
-    response_dict = filtra_personal_caracteristica('nome',nome)
-    if response_dict == {}:
-        detalhe = "Não existe nenhum personal com esse nome :("
-        raise HTTPException(status_code=400, detail=detalhe)
-    return response_dict
-    
-@app.get("/personal/membro/{membro_id}")
-async def informacoes_personal_de_um_membro(membro_id: int):
-    personal_id = None
-    for membro in membros:
-        if membro['membro_id'] == membro_id:
-            if membro["personal_id"] != None:
-                personal_id = membro["personal_id"]
-            else:
-                detalhe = "O membro não tem nenhum personal :("
-                raise HTTPException(status_code=400, detail=detalhe)
-    for personal in personais:
-        if personal["personal_id"] == personal_id:
-            return personal
-    detalhe = "Não existe um id para o personal ligado ao membro ;-;"
-    raise HTTPException(status_code=400, detail=detalhe)
-    
-
-@app.get("/plano/id/{plano_id}")
-async def informacoes_plano_id(plano_id: int):
-    for plano in planos:
-        if plano["plano_id"] == plano_id:
-            return plano
-    detalhe = "Não existe um plano com o esse id :("
-    raise HTTPException(status_code=400, detail=detalhe)
-
-@app.get("/plano/nome/{nome}")
-async def infomacoes_plano_nome(nome: str):
-    nome = nome.lower() 
-    for plano in planos:
-        if plano["nome"].lower() == nome:
-            return plano
-        
-    detalhe = "Não existe nenhum plano com esse nome :("
-    raise HTTPException(status_code=400, detail=detalhe)
-    
-
-@app.get("/plano/promocao")
-async def plano_promocao():
-    response_dict = {}
-    for plano in planos:
-        if plano["promocao"] == 1:
-            response_dict[plano['plano_id']] = f"{plano['nome']}"
-    if response_dict == {}:
-        detalhe = "Nao tem nenhum palno com promocao :("
-        raise HTTPException(status_code=400, detail=detalhe)
-    return response_dict
-
 ### DELETES:
-@app.delete("/membro/{membro_id}")
+@app.delete("/membro/{membro_id}", response_model=list[Membro])
 async def deletar_membro(membro_id: int):
+    membro_list = []
     membro_existe = None
     for membro in membros:
         if membro_id == membro["membro_id"]:
@@ -381,6 +381,7 @@ async def deletar_membro(membro_id: int):
                 if membro_id in personal["membro_id"]:
                     personal["membro_id"].remove(membro_id)
             membro_existe = 1
+            break
     if membro_existe is None:
         detalhe = "Não existe um membro com esse id para ser deletado"
         raise HTTPException(status_code=400, detail=detalhe)
@@ -388,18 +389,21 @@ async def deletar_membro(membro_id: int):
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4) 
-    return membros
+    for membro in membros:
+        membro_list.append(Membro(**membro))  
+    return membro_list
 
 
-@app.delete("/personal/{personal_id}")
+@app.delete("/personal/{personal_id}",response_model=list[Personal])
 async def deletar_personal(personal_id: int):
+    personal_list = []
     personal_existe = None
     for personal in personais:
         if personal_id == personal["personal_id"]:
             personais.remove(personal)
             for membro in membros:
                 if personal_id == membro["personal_id"]:
-                    membro["personal_id"] = None # Caso o plano seja apagado, o usuário fica sem plano (plano =0) até entrar em outro
+                    membro["personal_id"] = None 
             personal_existe = 1
     if personal_existe is None:
         detalhe = "Não existe um personal com esse id para ser deletado"
@@ -407,6 +411,8 @@ async def deletar_personal(personal_id: int):
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4) 
+    for personal in personais:
+        personal_list.append(Personal(**personal))  
     return personais
 
 
@@ -428,7 +434,10 @@ async def deletar_plano(plano_id: int):
     data["membro"] = membros
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4) 
-    return planos
+    planos_list  = []
+    for plano in planos: 
+        planos_list.append(Plano(**plano))
+    return planos_list
 
 
 # POSTS :
@@ -438,10 +447,23 @@ def serializar_datetime(obj):
         return obj.isoformat()
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
+def adicionar_membro_personal(membro_id,personal_id):
+    for personal in personais:
+        if personal["personal_id"] == personal_id:
+            personal["membro_id"].append(membro_id)
 
-@app.post("/membro", status_code=201) 
+def remover_membro_personal(membro_id,personal_id):
+    for personal in personais:
+        if personal["personal_id"] == personal_id:
+            personal["membro_id"].remove(membro_id)
+
+    
+
+
+@app.post("/membro", status_code=201,response_model=Membro) 
 async def adicionar_membro(membro: Membro):
     membros.append(membro.dict())
+    adicionar_membro_personal(membro.membro_id,membro.personal_id)
     data["membro"] = membros
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4,default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
@@ -449,7 +471,7 @@ async def adicionar_membro(membro: Membro):
 
 
 
-@app.post("/plano",status_code=201)
+@app.post("/plano",status_code=201, response_model=Plano)
 async def adicionar_plano(plano: Plano):
     planos.append(plano.dict())
     data["plano"] = planos
@@ -458,7 +480,7 @@ async def adicionar_plano(plano: Plano):
     return plano
 
 
-@app.post("/personal",status_code=201)
+@app.post("/personal",status_code=201,response_model=Personal)
 async def adicionar_personal(personal: Personal):
     personais.append(personal.dict())
     data["personal"] = personais
@@ -471,7 +493,6 @@ class MembroUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome do membro,precisa ter pelo menos duas letras", default=None,examples=["Raul"])
     sobrenome: str | None = Field(min_length = 2, description="Sobrenome do membro, precisa ter pelo menos duas letras", default=None,examples=["Silva"])
     genero: str | None = Field(default=None,min_length = 5, description="Genero do membro, precisa ter pelo menos cinco letras",examples=["Não definido"])
-    cpf: str | None = Field(default=None,pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", examples=["01234567891"]) 
     plano_id: int | None = Field(default=None, description="Identificador do plano na qual a pessoa está matriculada", examples =["1"])
     ativo: int | None = Field(default=None, description="0: se o membro não está ativo e 1: se o membro está ativo", examples =["0"])
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
@@ -483,7 +504,6 @@ class MembroUpdate(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "cpf" : "66569678302",
                     "plano_id" : 1,
                     "personal_id": 1,
                     "restrição_medica": "Problema na coluna"
@@ -492,13 +512,15 @@ class MembroUpdate(BaseModel):
         }
     }
 
-@app.put("/membro/{membro_id}")
+@app.put("/membro/{membro_id}",response_model=MembroUpdate)
 async def update_membro(membro_id: int, membro: MembroUpdate):
-    membro = membro.dict()
+    membro_aux = membro.dict()
     membro_existe = None
     for memb in membros:
         if memb["membro_id"] == membro_id:
-            for chave, valor in membro.items():
+            remover_membro_personal(membro_id,memb["personal_id"])
+            adicionar_membro_personal(membro_id,membro.personal_id)
+            for chave, valor in membro_aux.items():
                 if valor is not None:
                     memb[chave] = valor
             membro_existe = 1
@@ -508,13 +530,12 @@ async def update_membro(membro_id: int, membro: MembroUpdate):
     data["membro"] = membros
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
-    return membros
+    return membro
 
 class PersonalUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str | None = None
     membro_id: list[int] | None = Field(default=None,description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])
-    cpf: str | None = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", default=None) # pattern só permite números
     genero: str | None = None
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
     email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
@@ -531,13 +552,13 @@ class PersonalUpdate(BaseModel):
         }
     }
 
-@app.put("/personal/{personal_id}")
+@app.put("/personal/{personal_id}",response_model=PersonalUpdate)
 async def update_personal(personal_id: int, personal: PersonalUpdate):
-    personal = personal.dict()
+    personal_aux = personal.dict()
     personal_existe = None
     for pers in personais:
         if pers["personal_id"] == personal_id:
-            for chave, valor in personal.items():
+            for chave, valor in personal_aux.items():
                 if valor is not None:
                     pers[chave] = valor
             personal_existe = 1
@@ -547,7 +568,7 @@ async def update_personal(personal_id: int, personal: PersonalUpdate):
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
-    return personais
+    return personal
 
 class PlanoUpdate(BaseModel):
     nome: str | None = None
@@ -566,13 +587,13 @@ class PlanoUpdate(BaseModel):
         }
     }
 
-@app.put("/plano/{plano_id}")
+@app.put("/plano/{plano_id}",response_model=PlanoUpdate)
 async def update_plano(plano_id: int, plano: PlanoUpdate):
-    plano = plano.dict()
+    plano_aux = plano.dict()
     plano_existe = None
     for plan in planos:
         if plan["plano_id"] == plano_id:
-            for chave, valor in plano.items():
+            for chave, valor in plano_aux.items():
                 if valor is not None:
                     plan[chave] = valor
             plano_existe = 1
@@ -582,4 +603,4 @@ async def update_plano(plano_id: int, plano: PlanoUpdate):
     data["plano"] = planos
     with open(file_json, "w") as arquivo:
         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
-    return planos
+    return plano
