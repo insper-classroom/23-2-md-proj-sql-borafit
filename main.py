@@ -26,7 +26,7 @@ class Membro(BaseModel):
     telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos (2)DDD+9+número(8) , sem espaços!",  examples=["98765432100"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido" ,examples=["exemplo@email.com"])
     personal_id: int | None = Field(gt=0, description="Colocando o id do personal", examples =[1], default=None)
-    restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
+    restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default="nehuma")
     data_inscricao: date = Field(default = datetime.now().date(), description="Colocando a data atual, ou seja, a hora do cadastro")
     ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
     model_config = {
@@ -100,8 +100,9 @@ def filtra_e_devolve_lista_membros(nome_filtro,filtro):
     membros_lista = []
     if type(filtro) is str:
         for membro in membros:
-            if filtro.lower() == membro[nome_filtro].lower():
-                membros_lista.append(Membro(**membro))
+            if membro[nome_filtro] is not None:
+                if filtro.lower() == membro[nome_filtro].lower():
+                    membros_lista.append(Membro(**membro))
     else:
         for membro in membros:
             if filtro == membro[nome_filtro]:
@@ -179,11 +180,14 @@ async def listar_membros_de_um_genero(genero: Annotated[str, Path(title="Gênero
     return membros_lista
 
 
-@app.get("/membro/restricao/{restricao_medica}", response_model=list[Membro])
-async def listar_membros_com_restricao(restricao_medica: Annotated[str, Path(title="Restrição médica do membro",description="Coloque a restrição médica que o membro tem", example="problema nos joelhos")]):
-    membros_lista = filtra_e_devolve_lista_membros("restricao_medica",restricao_medica)
+@app.get("/membro/restricao_medica", response_model=list[Membro])
+async def listar_membros_com_restricao():
+    membros_lista = []
+    for membro in membros:
+        if membro["restricao_medica"].lower() != "nenhuma":
+            membros_lista.append(Membro(**membro))
     if not membros_lista:
-        detalhe = "Não existe ninguém cadastrado com essa restrição médica :)"
+        detalhe = "Não existe ninguém com restrição médica :)"
         raise HTTPException(status_code=400, detail=detalhe)
     return membros_lista
 

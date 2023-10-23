@@ -7,7 +7,7 @@ Buscar informações ao inserir uma rota com informação específica, todos os 
 * ``/membro/nome/{nome}`` membros com mesmo nome
 * ``/membro/genero/{genero}`` membros com mesmo genero 
 * ``/membro/ativo/{ativo}`` membros com mesmo estado
-* ``/membro/restricao/{restricao_medica}`` membros com mesma restrição médica
+* ``/membro/restricao_medica`` membros com alguma restrição médica
 * ``/membro/plano/{plano_id}`` membros com mesmo plano (id)
 * ``/membro/plano/nome/{nome}`` membros com mesmo plano (nome)
 * ``/personal/personal_id/{personal_id}`` personal com certo id 

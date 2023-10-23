@@ -104,7 +104,7 @@
             "telefone": "99999999999",
             "email": "pedros@example.com",
             "personal_id": null,
-            "restricao_medica": "Nenhuma"
+            "restricao_medica": "ossos fracos"
         },
         {
             "membro_id": 2,
@@ -119,7 +119,7 @@
             "telefone": "88888888888",
             "email": "giovanas@example.com",
             "personal_id": 5,
-            "restricao_medica": "Nenhuma"
+            "restricao_medica": "nenhuma"
         },
         {
             "membro_id": 3,
@@ -132,7 +132,7 @@
             "telefone": "99999999999",
             "email": "Guilhermm@example.com",
             "personal_id": 2,
-            "restricao_medica": "Nenhuma",
+            "restricao_medica": "asma",
             "data_inscricao": "2023-10-23",
             "ultima_presenca": null
         },
@@ -147,7 +147,7 @@
             "telefone": "99899119999",
             "email": "rangeru@example.com",
             "personal_id": 1,
-            "restricao_medica": null,
+            "restricao_medica": "nenhuma",
             "data_inscricao": "2023-10-22"
         },
         {
@@ -161,7 +161,7 @@
             "telefone": "99999999999",
             "email": "guilhermem@example.com",
             "personal_id": 2,
-            "restricao_medica": "Nenhuma",
+            "restricao_medica": "nenhuma",
             "data_inscricao": "2023-10-23",
             "ultima_presenca": null
         },
@@ -176,7 +176,7 @@
             "telefone": "99899999911",
             "email": "rangeru@example.com",
             "personal_id": null,
-            "restricao_medica": null,
+            "restricao_medica": "problema no joelho",
             "data_inscricao": "2023-10-22",
             "ultima_presenca": null
         },
@@ -191,7 +191,7 @@
             "telefone": "99999999999",
             "email": "Guilhermm@example.com",
             "personal_id": 4,
-            "restricao_medica": "Nenhuma",
+            "restricao_medica": "nenhuma",
             "data_inscricao": "2023-10-23",
             "ultima_presenca": null
         }
