@@ -34,7 +34,7 @@
                 4
             ],
             "genero": "Feminino",
-            "telefone": "7534201986",
+            "telefone": "75342019866",
             "email": "anaa@example.com",
             "salario": 2000.0,
             "cpf": "12345678901"
@@ -47,7 +47,7 @@
                 3, 5
             ],
             "genero": "Feminino",
-            "telefone": "7534298601",
+            "telefone": "75342798601",
             "email": "sofiac@example.com",
             "salario": 2500.0,
             "cpf": "12345678901"
@@ -58,7 +58,7 @@
             "sobrenome": "Lima",
             "membro_id": [],
             "genero": "Feminino",
-            "telefone": "9867534201",
+            "telefone": "98675934201",
             "email": "marial@example.com",
             "salario": 2500.0,
             "cpf": "12345678901"
@@ -72,7 +72,7 @@
             ],
             "cpf": "98765332121",
             "genero": "Masculino",
-            "telefone": "9876533210",
+            "telefone": "98765332105",
             "email": "victao@example.com",
             "salario": 3000.0
         },
@@ -85,7 +85,7 @@
             ],
             "cpf": "12345687001",
             "genero": "Masculino",
-            "telefone": "1234567890",
+            "telefone": "12345667890",
             "email": "macielcv@example.com",
             "salario": 2500.0
         }

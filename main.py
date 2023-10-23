@@ -21,11 +21,11 @@ class Membro(BaseModel):
     sobrenome: str | None = None
     genero: str = Field(min_length = 5, description="Genero precisa ter pelo menos cinco letras",examples=["Não definido"])
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )", examples=["01234567891"]) # pattern só permite números
-    plano_id: int = Field( description="Identificador do plano na qual a pessoa está matriculada", examples =["1"])
-    ativo: int = Field( description="0: se o membro não está ativo e 1: se o membro está ativo", examples =["0"])
+    plano_id: int = Field( description="Identificador do plano na qual a pessoa está matriculada", examples =[1])
+    ativo: int = Field( description="0: se o membro não está ativo e 1: se o membro está ativo", examples =[0])
     telefone: str | None = Field(pattern=r'^\d*$', min_length=11, max_length=11,description="O telefone deve ter 11 dígitos (2)DDD+9+número(8) , sem espaços!",  examples=["98765432100"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido" ,examples=["exemplo@email.com"])
-    personal_id: int = Field(gt=0, description="Colocando o id do personal", examples =["1"])
+    personal_id: int = Field(gt=0, description="Colocando o id do personal", examples =[1])
     restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
     data_inscricao: date = Field(default = datetime.now().date(), description="Colocando a data atual, ou seja, a hora do cadastro")
     ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
@@ -53,8 +53,8 @@ class Plano(BaseModel):
     nome: str 
     descricao: str | None = Field( description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
     preco: float = Field(gt=0, description="O preço precisa ser maior que zero!",examples=[100])
-    aulas_em_grupo: int =Field( description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = ["0"])
-    promocao: int = Field( description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = ["1"])
+    aulas_em_grupo: int =Field( description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = [0])
+    promocao: int = Field( description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = [1])
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -144,7 +144,7 @@ async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um me
 
 
 @app.get("/membro/ativo/{ativo}", response_model=list[Membro])
-async def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example="1")]):
+async def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example=1)]):
     membros_lista = filtra_e_devolve_lista_membros("ativo",ativo)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse estado"
@@ -161,7 +161,7 @@ async def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identi
     return membros_lista
 
 @app.get("/membro/id/{membro_id}", response_model=Membro)
-async def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example="1")]):
+async def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example=1)]):
     for membro in membros:
         if membro["membro_id"] == membro_id:
             response_membro = Membro(**membro)
@@ -206,7 +206,7 @@ async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do 
 
 ### GETS PERSONAIS
 @app.get("/personal/personal_id/{personal_id}", response_model=Personal)
-async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example="1")]):
+async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)]):
     for personal in personais:
         if personal_id == personal["personal_id"]:
             response_personal = Personal(**personal)
@@ -225,7 +225,7 @@ async def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero 
 
 
 @app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Membro])
-async def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example="1")]):
+async def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example=1)]):
     personal_membros_dict = {}
     membros_lista = []
     personalId = 0
@@ -253,7 +253,7 @@ async def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um 
     return personal_lista
     
 @app.get("/personal/membro/{membro_id}", response_model=Personal)
-async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example="1")]):
+async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example=1)]):
     personal_id = None
     for membro in membros:
         if membro['membro_id'] == membro_id:
@@ -274,7 +274,7 @@ async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title
 
 ### GET PLANOS
 @app.get("/plano/plano_id/{plano_id}/membros", response_model=list[Membro])
-async def listar_membro_do_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para receber a lista dos membros que estão nesse plano", example="1")]):
+async def listar_membro_do_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para receber a lista dos membros que estão nesse plano", example=1)]):
     membros_lista = []
     planoId = 0
     for plano in planos:
@@ -323,7 +323,7 @@ async def listar_planos_com_aula_em_grupo():
 
 
 @app.get("/plano/id/{plano_id}", response_model=Plano)
-async def informacoes_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para ver as informações do plano escolhido", example="1")]):
+async def informacoes_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para ver as informações do plano escolhido", example=1)]):
     for plano in planos:
         if plano["plano_id"] == plano_id:
             return Plano(**plano)
@@ -370,7 +370,7 @@ def filtra_personal_caracteristica(caracteristica,filtro):
 
 ### DELETES:
 @app.delete("/membro/{membro_id}", response_model=list[Membro])
-async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example="1")]):
+async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example=1)]):
     membro_list = []
     membro_existe = None
     for membro in membros:
@@ -394,7 +394,7 @@ async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do 
 
 
 @app.delete("/personal/{personal_id}",response_model=list[Personal])
-async def deletar_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para deletar o personal escolhido", example="1")]):
+async def deletar_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para deletar o personal escolhido", example=1)]):
     personal_list = []
     personal_existe = None
     for personal in personais:
@@ -416,7 +416,7 @@ async def deletar_personal(personal_id: Annotated[int, Path(title="Identificador
 
 
 @app.delete("/plano/{plano_id}")
-async def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para deletar o plano escolhido", example="1")]):
+async def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para deletar o plano escolhido", example=1)]):
     plano_existe = None
     for plano in planos:
         if plano_id == plano["plano_id"]:
@@ -492,11 +492,11 @@ class MembroUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome do membro,precisa ter pelo menos duas letras", default=None,examples=["Raul"])
     sobrenome: str | None = Field(min_length = 2, description="Sobrenome do membro, precisa ter pelo menos duas letras", default=None,examples=["Silva"])
     genero: str | None = Field(default=None,min_length = 5, description="Genero do membro, precisa ter pelo menos cinco letras",examples=["Não definido"])
-    plano_id: int | None = Field(default=None, description="Identificador do plano na qual a pessoa está matriculada", examples =["1"])
-    ativo: int | None = Field(default=None, description="0: se o membro não está ativo e 1: se o membro está ativo", examples =["0"])
+    plano_id: int | None = Field(default=None, description="Identificador do plano na qual a pessoa está matriculada", examples =[1])
+    ativo: int | None = Field(default=None, description="0: se o membro não está ativo e 1: se o membro está ativo", examples =[0])
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
     email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
-    personal_id: int | None = Field(default=None,gt=0, description="Colocando o id do personal", examples =["1"])
+    personal_id: int | None = Field(default=None,gt=0, description="Colocando o id do personal", examples =[1])
     restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
     ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
     model_config = {
@@ -573,8 +573,8 @@ class PlanoUpdate(BaseModel):
     nome: str | None = None
     descricao: str | None =  Field(default=None ,description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
     preco: float | None = Field(default=None,gt=0, description="O preço precisa ser maior que zero!",examples=[100])
-    aulas_em_grupo: int | None = Field(default=None, description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = ["0"])
-    promocao: int | None = Field( default=None,description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = ["1"])
+    aulas_em_grupo: int | None = Field(default=None, description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = [0])
+    promocao: int | None = Field( default=None,description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = [1])
     model_config = {
         "json_schema_extra": {
             "examples": [
