@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field  
-from fastapi import FastAPI,  HTTPException, Path
+from fastapi import FastAPI,  HTTPException, Path,Body
 from datetime import datetime ,date
 from typing import Annotated
 import json
@@ -135,7 +135,7 @@ def filtra_e_devolve_lista_planos(nome_filtro,filtro):
 
 ### GETS MEMBROS: 
 @app.get("/membro/nome/{nome}", response_model=list[Membro])
-async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro que voce quer receber as informações", example="Fulano")]):
+async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")]):
     membros_lista = filtra_e_devolve_lista_membros("nome",nome)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse nome"
@@ -144,7 +144,7 @@ async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um me
 
 
 @app.get("/membro/ativo/{ativo}", response_model=list[Membro])
-async def listar_membros_por_estado(ativo:  Annotated[int, Path(title="lista de membros pelo nome",description="listinha com os membros que são filtrados pelo nome", example="Fulano")]):
+async def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example="1")]):
     membros_lista = filtra_e_devolve_lista_membros("ativo",ativo)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse estado"
@@ -153,7 +153,7 @@ async def listar_membros_por_estado(ativo:  Annotated[int, Path(title="lista de 
 
 
 @app.get("/membro/plano/{plano_id}", response_model=list[Membro])
-async def listar_membros_por_planoID(plano_id: int):
+async def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador que representa o id do plano que o membro faz parte", example="3")]):
     membros_lista = filtra_e_devolve_lista_membros("plano_id",plano_id)
     if not membros_lista:
         detalhe = "Não tem nenhum membro com esse plano"
@@ -161,7 +161,7 @@ async def listar_membros_por_planoID(plano_id: int):
     return membros_lista
 
 @app.get("/membro/id/{membro_id}", response_model=Membro)
-async def devolve_informacoes_do_membro(membro_id: int):
+async def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example="1")]):
     for membro in membros:
         if membro["membro_id"] == membro_id:
             response_membro = Membro(**membro)
@@ -171,7 +171,7 @@ async def devolve_informacoes_do_membro(membro_id: int):
 
 
 @app.get("/membro/genero/{genero}", response_model=list[Membro])
-async def listar_membros_de_um_genero(genero: str):
+async def listar_membros_de_um_genero(genero: Annotated[str, Path(title="Gênero do membro",description="Digite o genero com o qual o membro se identifica", example="Feminino")]):
     membros_lista = filtra_e_devolve_lista_membros("genero",genero)
     if not membros_lista: 
         detalhe = "Não existe ninguém cadastrado com esse gênero :("
@@ -180,7 +180,7 @@ async def listar_membros_de_um_genero(genero: str):
 
 
 @app.get("/membro/restricao/{restricao_medica}", response_model=list[Membro])
-async def listar_membros_com_restricao(restricao_medica: str):
+async def listar_membros_com_restricao(restricao_medica: Annotated[str, Path(title="Restrição médica do membro",description="Coloque a restrição médica que o membro tem", example="problema nos joelhos")]):
     membros_lista = filtra_e_devolve_lista_membros("restricao_medica",restricao_medica)
     if not membros_lista:
         detalhe = "Não existe ninguém cadastrado com essa restrição médica :)"
@@ -188,7 +188,7 @@ async def listar_membros_com_restricao(restricao_medica: str):
     return membros_lista
 
 @app.get("/membro/plano/nome/{nome}", response_model=list[Membro])
-async def listar_membros_do_plano_nome(nome: str):
+async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")]):
     nome = nome.lower() 
     id_plano = None
     for plano in planos:
@@ -206,7 +206,7 @@ async def listar_membros_do_plano_nome(nome: str):
 
 ### GETS PERSONAIS
 @app.get("/personal/personal_id/{personal_id}", response_model=Personal)
-async def personal_por_personalID(personal_id: int):
+async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example="1")]):
     for personal in personais:
         if personal_id == personal["personal_id"]:
             response_personal = Personal(**personal)
@@ -216,7 +216,7 @@ async def personal_por_personalID(personal_id: int):
     
 
 @app.get("/personal/genero/{genero}", response_model=list[Personal])
-async def listar_personal_por_genero(genero: str):
+async def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")]):
     personal_lista = filtra_e_devolve_lista_personais("genero",genero)
     if not personal_lista:
         detalhe = "Não tem nenhum personal com esse gênero"
@@ -225,7 +225,7 @@ async def listar_personal_por_genero(genero: str):
 
 
 @app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Membro])
-async def listar_membros_com_personal_id(personal_id: int):
+async def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example="1")]):
     personal_membros_dict = {}
     membros_lista = []
     personalId = 0
@@ -245,7 +245,7 @@ async def listar_membros_com_personal_id(personal_id: int):
     return membros_lista
 
 @app.get("/personal/nome/{nome}", response_model=list[Personal])
-async def listar_personais_por_nome(nome:str):
+async def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um personal da academia",description="Escreva o nome do personal e receba uma lista com todos os personais que tem o nome escolhido", example="Fulano")]):
     personal_lista = filtra_e_devolve_lista_personais("nome",nome)
     if not personal_lista:
         detalhe = "Não existe nenhum personal com esse nome :("
@@ -253,7 +253,7 @@ async def listar_personais_por_nome(nome:str):
     return personal_lista
     
 @app.get("/personal/membro/{membro_id}", response_model=Personal)
-async def informacoes_personal_de_um_membro(membro_id: int):
+async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example="1")]):
     personal_id = None
     for membro in membros:
         if membro['membro_id'] == membro_id:
@@ -274,7 +274,7 @@ async def informacoes_personal_de_um_membro(membro_id: int):
 
 ### GET PLANOS
 @app.get("/plano/plano_id/{plano_id}/membros", response_model=list[Membro])
-async def listar_membro_do_plano_id(plano_id: int):
+async def listar_membro_do_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para receber a lista dos membros que estão nesse plano", example="1")]):
     membros_lista = []
     planoId = 0
     for plano in planos:
@@ -292,7 +292,7 @@ async def listar_membro_do_plano_id(plano_id: int):
 
 
 @app.get("/plano/nome/{nome}/membros", response_model=list[Membro])
-async def listar_membro_do_plano_nome(nome: str):
+async def listar_membro_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para receber a lista dos membros que estão nesse plano", example="basico")]):
     planoId = 0
     membros_lista = []
     for plano in planos:
@@ -323,7 +323,7 @@ async def listar_planos_com_aula_em_grupo():
 
 
 @app.get("/plano/id/{plano_id}", response_model=Plano)
-async def informacoes_plano_id(plano_id: int):
+async def informacoes_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para ver as informações do plano escolhido", example="1")]):
     for plano in planos:
         if plano["plano_id"] == plano_id:
             return Plano(**plano)
@@ -331,7 +331,7 @@ async def informacoes_plano_id(plano_id: int):
     raise HTTPException(status_code=400, detail=detalhe)
 
 @app.get("/plano/nome/{nome}", response_model=Plano)
-async def infomacoes_plano_nome(nome: str):
+async def infomacoes_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para ver as informações do plano escolhido", example="basico")]):
     nome = nome.lower() 
     for plano in planos:
         if plano["nome"].lower() == nome:
@@ -353,7 +353,6 @@ async def plano_promocao():
     return planos_list
 
 
-### gets lincoln :
 def filtro_membro_caracteristicas(caracteristica,filtro):
     dicio = {}
     for membro in membros:
@@ -371,7 +370,7 @@ def filtra_personal_caracteristica(caracteristica,filtro):
 
 ### DELETES:
 @app.delete("/membro/{membro_id}", response_model=list[Membro])
-async def deletar_membro(membro_id: int):
+async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example="1")]):
     membro_list = []
     membro_existe = None
     for membro in membros:
@@ -395,7 +394,7 @@ async def deletar_membro(membro_id: int):
 
 
 @app.delete("/personal/{personal_id}",response_model=list[Personal])
-async def deletar_personal(personal_id: int):
+async def deletar_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para deletar o personal escolhido", example="1")]):
     personal_list = []
     personal_existe = None
     for personal in personais:
@@ -417,7 +416,7 @@ async def deletar_personal(personal_id: int):
 
 
 @app.delete("/plano/{plano_id}")
-async def deletar_plano(plano_id: int):
+async def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para deletar o plano escolhido", example="1")]):
     plano_existe = None
     for plano in planos:
         if plano_id == plano["plano_id"]:
@@ -461,7 +460,7 @@ def remover_membro_personal(membro_id,personal_id):
 
 
 @app.post("/membro", status_code=201,response_model=Membro) 
-async def adicionar_membro(membro: Membro):
+async def adicionar_membro(membro: Annotated[Membro,Body(description="Corpo para envio das informações para serem adicionadas")]):
     membros.append(membro.dict())
     adicionar_membro_personal(membro.membro_id,membro.personal_id)
     data["membro"] = membros
@@ -472,7 +471,7 @@ async def adicionar_membro(membro: Membro):
 
 
 @app.post("/plano",status_code=201, response_model=Plano)
-async def adicionar_plano(plano: Plano):
+async def adicionar_plano(plano:Annotated[Plano,Body(description="Corpo para envio das informações para serem adicionadas")]):
     planos.append(plano.dict())
     data["plano"] = planos
     with open(file_json, "w") as arquivo:
@@ -481,7 +480,7 @@ async def adicionar_plano(plano: Plano):
 
 
 @app.post("/personal",status_code=201,response_model=Personal)
-async def adicionar_personal(personal: Personal):
+async def adicionar_personal(personal: Annotated[Personal,Body(description="Corpo para envio das informações para serem adicionadas")]):
     personais.append(personal.dict())
     data["personal"] = personais
     with open(file_json, "w") as arquivo:
@@ -513,7 +512,7 @@ class MembroUpdate(BaseModel):
     }
 
 @app.put("/membro/{membro_id}",response_model=MembroUpdate)
-async def update_membro(membro_id: int, membro: MembroUpdate):
+async def update_membro(membro_id: int, membro: Annotated[MembroUpdate,Body(description="Corpo para envio das informações a serem alteradas")]):
     membro_aux = membro.dict()
     membro_existe = None
     for memb in membros:
@@ -553,7 +552,7 @@ class PersonalUpdate(BaseModel):
     }
 
 @app.put("/personal/{personal_id}",response_model=PersonalUpdate)
-async def update_personal(personal_id: int, personal: PersonalUpdate):
+async def update_personal(personal_id: int, personal: Annotated[PersonalUpdate,Body(description="Corpo para envio das informações a serem alteradas")]):
     personal_aux = personal.dict()
     personal_existe = None
     for pers in personais:
@@ -588,7 +587,7 @@ class PlanoUpdate(BaseModel):
     }
 
 @app.put("/plano/{plano_id}",response_model=PlanoUpdate)
-async def update_plano(plano_id: int, plano: PlanoUpdate):
+async def update_plano(plano_id: int, plano: Annotated[PlanoUpdate,Body(description="Corpo para envio das informações a serem alteradas")]):
     plano_aux = plano.dict()
     plano_existe = None
     for plan in planos:
