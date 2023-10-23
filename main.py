@@ -230,7 +230,7 @@ async def listar_planos_com_aula_em_grupo():
     planos_dict = {}
     for plano in planos:
         if 1 == plano["aulas_em_grupo"]:
-            planos_dict[plano["nome"]] = plano
+            planos_dict[plano['plano_id']] = f"{plano['nome']}"
     if not planos_dict:
         detalhe = "Não há nenhuma aula em grupo :("
         raise HTTPException(status_code=404, detail=detalhe)
