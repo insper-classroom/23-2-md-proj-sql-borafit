@@ -10,10 +10,10 @@
         },
         {
             "plano_id": 2,
-            "preco": 75.0,
+            "preco": 65.0,
             "descricao": "Plano Premium",
             "nome": "Premium",
-            "aulas_em_grupo": 1,
+            "aulas_em_grupo": 0,
             "promocao": 1
         },
         {
