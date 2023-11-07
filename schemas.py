@@ -43,54 +43,65 @@ class MembroBase(BaseModel):
 class MembroCreate(MembroBase):
     membro_id: int | None
 
+model_config_plano = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "nome" : "Basic",
+                "description": "Plano Basic",
+                "preco": 100.0,
+                "aulas_em_grupo": 0,
+                "promocao": 1
+            }
+        ]
+    }
+}
 
-class Plano(BaseModel):
-    plano_id: int
+class PlanoBase(BaseModel):
     nome: str 
     descricao: str | None = Field( description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
     preco: float = Field(gt=0, description="O preço precisa ser maior que zero!",examples=[100])
     aulas_em_grupo: int =Field( description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = [0])
     promocao: int = Field( description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = [1])
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "nome" : "Basic",
-                    "description": "Plano Basic",
-                    "preco": 100.0,
-                    "aulas_em_grupo": 0,
-                    "promocao": 1
-                }
-            ]
-        }
-    }
+    class Config:
+        from_attributes = True
+        json_schema = model_config_plano["json_schema_extra"]
 
-class Personal(BaseModel):
-    personal_id: int
+class PlanoCreate(PlanoBase):
+    plano_id: int | None
+
+model_config_personal = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "nome" : "Amethysta",
+                "sobrenome": "Perola",
+                "membro_id": 2,
+                "cpf": "11223344556",
+                "genero": "Feminino",
+                "telefone": "23919283746",
+                "email": "amethypearl@borafit.com",
+                "salario": 3000.0
+            }
+        ]
+    }
+}
+
+class PersonalBase(BaseModel):
     nome : str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str 
-    membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])
+    membro_id : int | None = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2])
     cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )",examples=["01234567891"]) # pattern só permite números
     genero: str 
     telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",examples=["11999523499"])
     email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", examples=["exemplo@dominio.com"])
     salario: float = Field(gt=0, description="O salário precisa ser maior que zero!", examples=[2000.0])
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "nome" : "Amethysta",
-                    "sobrenome": "Perola",
-                    "membro_id": [1,2],
-                    "cpf": "11223344556",
-                    "genero": "Feminino",
-                    "telefone": "23919283746",
-                    "email": "amethypearl@borafit.com",
-                    "salario": 3000.0
-                }
-            ]
-        }
-    }
+    class Config:
+        from_attributes = True
+        json_schema = model_config_plano["json_schema_extra"]
+
+class PersonalCreate(PersonalBase):
+    personal_id: int | None
 
 class MembroUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome do membro,precisa ter pelo menos duas letras", default=None,examples=["Raul"])

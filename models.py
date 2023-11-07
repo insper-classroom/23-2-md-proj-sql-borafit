@@ -50,7 +50,7 @@ class Personal(Base):
     personal_id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(50), nullable=False)
     sobrenome = Column(String(50), nullable=False)
-    membro_id = Column(String(50), nullable=False)  # You can use a JSON or array type field in your database, depending on the database you are using
+    membro_id = Column(Integer )  # You can use a JSON or array type field in your database, depending on the database you are using
     cpf = Column(String(11), nullable=False, unique=True)
     genero = Column(String(50), nullable=False)
     telefone = Column(String(11), nullable=False)

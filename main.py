@@ -129,6 +129,10 @@ def listar_membros_com_restricao(db: Session = Depends(get_db)):
 def create_user(membro: schemas.MembroBase, db: Session = Depends(get_db)):
     return crud.create_membro(db=db, membro=membro)
 
+@app.post("/personal/", response_model=schemas.PersonalCreate)
+def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
+    return crud.create_personal(db=db, personal=personal)
+
 # @app.get("/personal/genero/{genero}", response_model=list[Personal])
 # async def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")]):
 #     personal_lista = filtra_e_devolve_lista_personais("genero",genero)

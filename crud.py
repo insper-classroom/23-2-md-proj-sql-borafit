@@ -73,6 +73,21 @@ def create_membro(db: Session, membro: schemas.MembroCreate):
     return db_membro
 
 
+def create_personal(db: Session, personal: schemas.PersonalCreate):
+    db_personal = models.Personal(**personal.dict())
+    db.add(db_personal)
+    db.commit()
+    db.refresh(db_personal)
+    return db_personal
+
+
+def create_plano(db: Session, plano: schemas.PlanoCreate):
+    db_plano = models.Plano(**plano.dict())
+    db.add(db_plano)
+    db.commit()
+    db.refresh(db_plano)
+    return db_plano
+
 '''
 /membro/plano/{nome}                .
 /personal/{personal_id}/membros     .
