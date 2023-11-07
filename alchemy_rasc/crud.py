@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 import models, schemas
-
+### Função auxiliares com conexão com o banco de dados
 
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()

@@ -108,8 +108,7 @@ def filtra_e_devolve_lista_membros(nome_filtro,filtro):
             if filtro == membro[nome_filtro]:
                 membros_lista.append(Membro(**membro))
     return membros_lista
-                
-            
+                           
 def filtra_e_devolve_lista_personais(nome_filtro,filtro):
     personais_lista = []
     if type(filtro) is str:
@@ -371,7 +370,6 @@ def filtra_personal_caracteristica(caracteristica,filtro):
             dicio[personal["personal_id"]] = f"{personal['nome']} {personal['sobrenome']}"
     return dicio
 
-
 ### DELETES:
 @app.delete("/membro/{membro_id}", response_model=list[Membro])
 async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example=1)]):
@@ -459,9 +457,6 @@ def remover_membro_personal(membro_id,personal_id):
     for personal in personais:
         if personal["personal_id"] == personal_id:
             personal["membro_id"].remove(membro_id)
-
-    
-
 
 @app.post("/membro", status_code=201,response_model=Membro) 
 async def adicionar_membro(membro: Annotated[Membro,Body(description="Corpo para envio das informações para serem adicionadas")]):

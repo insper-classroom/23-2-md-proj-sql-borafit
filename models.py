@@ -6,6 +6,7 @@ from database import Base
 Os models desse arquivo são os do SqlAlchemy,
 não confundir com os do Pydantic, que estarão no schema.py
 '''
+### COLOCAR OS EXEMPLOS AINDA POR CONTA DA documentação
 class Membro(Base):
     __tablename__ = 'membros'  # Nome da tabela no banco de dados
 
