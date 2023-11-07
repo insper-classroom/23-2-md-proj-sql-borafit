@@ -21,7 +21,7 @@ class Membro(Base):
     email = Column(String(100), nullable=False, unique=True)
     personal_id = Column(Integer, ForeignKey('personal.personal_id'))
     restricao_medica = Column(String(100), default="nenhuma")
-    data_inscricao = Column(Date, default=datetime.now())
+    data_inscricao = Column(Date, default=datetime.now().date(), nullable=False)
     ultima_presenca = Column(Date)
 
     # Define relationships if needed
