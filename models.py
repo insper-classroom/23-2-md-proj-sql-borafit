@@ -25,8 +25,8 @@ class Membro(Base):
     ultima_presenca = Column(Date)
 
     # Define relationships if needed
-    plano = relationship("plano", back_populates="membros")
-    personal = relationship("personal", back_populates="membros")
+    plano = relationship("Plano", back_populates="membros")
+    personal = relationship("Personal", back_populates="membros")
 
     
 
@@ -41,12 +41,7 @@ class Plano(Base):
     aulas_em_grupo = Column(Integer, default=0, nullable=False)
     promocao = Column(Boolean, default=False, nullable=False)
 
-    def __init__(self, nome, descricao, preco, aulas_em_grupo, promocao):
-        self.nome = nome
-        self.descricao = descricao
-        self.preco = preco
-        self.aulas_em_grupo = aulas_em_grupo
-        self.promocao = promocao
+    membros = relationship("Membro", back_populates="plano")
 
 
 class Personal(Base):
@@ -61,4 +56,5 @@ class Personal(Base):
     telefone = Column(String(11), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
     salario = Column(Float, nullable=False)
+    membros = relationship("Membro", back_populates="personal")
 

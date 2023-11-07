@@ -62,6 +62,17 @@ def get_plano_com_promocao(db: Session):
     return db.query(models.Plano).filter(models.Plano.promocao == 1).all()
 
 
+
+
+# Creates - POSTS
+def create_membro(db: Session, membro: schemas.MembroCreate):
+    db_membro = models.Membro(**membro.dict())
+    db.add(db_membro)
+    db.commit()
+    db.refresh(db_membro)
+    return db_membro
+
+
 '''
 /membro/plano/{nome}                .
 /personal/{personal_id}/membros     .
