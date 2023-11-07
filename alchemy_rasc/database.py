@@ -1,11 +1,18 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
 
-### SEM O .ENV, LEMBRAR DE CRIAR O .ENV_EXAMPLE
-senha = 'senha'
-SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://root:{senha}@localhost/teste"
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+load_dotenv(override=True)
+
+host=os.getenv('MD_DB_SERVER')
+user=os.getenv('MD_DB_USERNAME')
+password=os.getenv('MD_DB_PASSWORD')
+database_name = "teste"
+
+SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{user}:{password}@{host}/{database_name}"
+
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL

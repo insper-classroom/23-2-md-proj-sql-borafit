@@ -2,96 +2,31 @@ from pydantic import BaseModel, Field
 from fastapi import FastAPI,  HTTPException, Path,Body
 from datetime import datetime ,date
 from typing import Annotated
-import json
-
+from database import SessionLocal, engine
+import crud, models, schemas
 from schemas import Membro, Plano,Personal,MembroUpdate,PersonalUpdate,PlanoUpdate
 
+models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
-file_json = 'exemplo.json'
-# Carregando o JSON
-with open(file_json, 'r') as file:
-    data = json.load(file)
-
-membros = data.get("membro", [])
-personais = data.get("personal", [])
-planos = data.get("plano", [])
-
-# Classes :
 
 
-
-class Personal(BaseModel):
-    personal_id: int = Field( default= len(personais)+1 )
-    nome : str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
-    sobrenome: str 
-    membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])
-    cpf: str = Field(pattern=r'^\d*$', max_length=11, min_length=11,description="O cpf deve ter 11 dígitos, não inclua os pontos ( . ) e nem o traço ( - )",examples=["01234567891"]) # pattern só permite números
-    genero: str 
-    telefone: str = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!",examples=["11999523499"])
-    email: str = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", examples=["exemplo@dominio.com"])
-    salario: float = Field(gt=0, description="O salário precisa ser maior que zero!", examples=[2000.0])
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "nome" : "Amethysta",
-                    "sobrenome": "Perola",
-                    "membro_id": [1,2],
-                    "cpf": "11223344556",
-                    "genero": "Feminino",
-                    "telefone": "23919283746",
-                    "email": "amethypearl@borafit.com",
-                    "salario": 3000.0
-                }
-            ]
-        }
-    }
-
-def filtra_e_devolve_lista_membros(nome_filtro,filtro):
-    membros_lista = []
-    if type(filtro) is str:
-        for membro in membros:
-            if membro[nome_filtro] is not None:
-                if filtro.lower() == membro[nome_filtro].lower():
-                    membros_lista.append(Membro(**membro))
-    else:
-        for membro in membros:
-            if filtro == membro[nome_filtro]:
-                membros_lista.append(Membro(**membro))
-    return membros_lista
-                           
-def filtra_e_devolve_lista_personais(nome_filtro,filtro):
-    personais_lista = []
-    if type(filtro) is str:
-        for personal in personais:
-            if filtro.lower() == personal[nome_filtro].lower():
-                personais_lista.append(Personal(**personal))
-    else:
-        for personal in personais:
-            if filtro == personal[nome_filtro]:
-                personais_lista.append(Personal(**personal))
-    return personais_lista
-                
-def filtra_e_devolve_lista_planos(nome_filtro,filtro):
-    planos_lista = []
-    if type(filtro) is str:
-        for plano in planos:
-            if filtro.lower() == plano[nome_filtro].lower():
-                planos_lista.append(Plano(**plano))
-    else:
-        for plano in planos:
-            if filtro == plano[nome_filtro]:
-                planos_lista.append(Plano(**plano))
-    return planos_lista
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 ### GETS MEMBROS: 
 @app.get("/membro/nome/{nome}", response_model=list[Membro])
 async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")]):
-    membros_lista = filtra_e_devolve_lista_membros("nome",nome)
-    if not membros_lista:
-        detalhe = "Não tem nenhum membro com esse nome"
-        raise HTTPException(status_code=400, detail=detalhe,)
-    return membros_lista
+        membros_lista = filtra_e_devolve_lista_membros("nome",nome)
+        if not membros_lista:
+            detalhe = "Não tem nenhum membro com esse nome"
+            raise HTTPException(status_code=400, detail=detalhe,)
+        return membros_lista
 
 
 @app.get("/membro/ativo/{ativo}", response_model=list[Membro])

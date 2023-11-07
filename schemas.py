@@ -1,11 +1,9 @@
 from pydantic import BaseModel, Field  
-
-
-
+from datetime import datetime ,date
 
 
 class Membro(BaseModel):
-    membro_id: int = Field( default= len(membros)+1 ) # depois podemos utilizar uuid4()
+    membro_id: int
     nome: str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras",examples=["Fulano"])
     sobrenome: str | None = None
     genero: str = Field(min_length = 5, description="Genero precisa ter pelo menos cinco letras",examples=["Não definido"])
@@ -37,8 +35,9 @@ class Membro(BaseModel):
         }
     }
 
+
 class Plano(BaseModel):
-    plano_id: int = Field( default= len(planos)+1 )
+    plano_id: int
     nome: str 
     descricao: str | None = Field( description="Mais detalhes sobre o plano",examples=["Plano mais completo com acompanhamento"])
     preco: float = Field(gt=0, description="O preço precisa ser maior que zero!",examples=[100])
@@ -59,7 +58,7 @@ class Plano(BaseModel):
     }
 
 class Personal(BaseModel):
-    personal_id: int = Field( default= len(personais)+1 )
+    personal_id: int
     nome : str = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
     sobrenome: str 
     membro_id : list[int] = Field(description= "Uma lista com os identificadores dos membros da academia que o personal acompanha",examples=[2,3])

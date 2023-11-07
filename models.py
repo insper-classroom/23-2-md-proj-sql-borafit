@@ -1,6 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, Float
 from sqlalchemy.orm import relationship
-
+from datetime import datetime
 from database import Base
 '''
 Os models desse arquivo são os do SqlAlchemy,
@@ -15,27 +15,50 @@ class Membro(Base):
     sobrenome = Column(String(50))
     genero = Column(String(50), nullable=False)
     cpf = Column(String(11), nullable=False, unique=True)
-    plano_id = Column(Integer, nullable=False)
+    plano_id = Column(Integer, ForeignKey('plano.plano_id'), nullable=False)
     ativo = Column(Integer, nullable=False)
     telefone = Column(String(11))
     email = Column(String(100), nullable=False, unique=True)
-    personal_id = Column(Integer)
+    personal_id = Column(Integer, ForeignKey('personal.personal_id'))
     restricao_medica = Column(String(100), default="nenhuma")
-    data_inscricao = Column(Date, default=Date.now())
+    data_inscricao = Column(Date, default=datetime.now())
     ultima_presenca = Column(Date)
 
-    def __init__(self, nome, sobrenome, genero, cpf, plano_id, ativo, telefone, email, personal_id, restricao_medica, ultima_presenca):
-        self.nome = nome
-        self.sobrenome = sobrenome
-        self.genero = genero
-        self.cpf = cpf
-        self.plano_id = plano_id
-        self.ativo = ativo
-        self.telefone = telefone
-        self.email = email
-        self.personal_id = personal_id
-        self.restricao_medica = restricao_medica
-        self.ultima_presenca = ultima_presenca
+    # Define relationships if needed
+    plano = relationship("plano", back_populates="membros")
+    personal = relationship("personal", back_populates="membros")
 
-    def __repr__(self):
-        return f"<Membro(nome='{self.nome}', cpf='{self.cpf}')>"
+    
+
+
+class Plano(Base):
+    __tablename__ = 'plano'
+
+    plano_id = Column(Integer, primary_key=True, autoincrement=True)
+    nome = Column(String(50), index=True, nullable=False)
+    descricao = Column(String(50), index=True)
+    preco = Column(Float, nullable=False)
+    aulas_em_grupo = Column(Integer, default=0, nullable=False)
+    promocao = Column(Boolean, default=False, nullable=False)
+
+    def __init__(self, nome, descricao, preco, aulas_em_grupo, promocao):
+        self.nome = nome
+        self.descricao = descricao
+        self.preco = preco
+        self.aulas_em_grupo = aulas_em_grupo
+        self.promocao = promocao
+
+
+class Personal(Base):
+    __tablename__ = 'personal'
+
+    personal_id = Column(Integer, primary_key=True, autoincrement=True)
+    nome = Column(String(50), nullable=False)
+    sobrenome = Column(String(50), nullable=False)
+    membro_id = Column(String(50), nullable=False)  # You can use a JSON or array type field in your database, depending on the database you are using
+    cpf = Column(String(11), nullable=False, unique=True)
+    genero = Column(String(50), nullable=False)
+    telefone = Column(String(11), nullable=False)
+    email = Column(String(50), nullable=False, unique=True)
+    salario = Column(Float, nullable=False)
+
