@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field  
-from fastapi import FastAPI,  HTTPException, Path,Body, Depends
+from fastapi import FastAPI,  HTTPException, Path,Body
 from datetime import datetime ,date
+from sqlalchemy.orm import Session
 from typing import Annotated
 from database import SessionLocal, engine
 import crud, models, schemas
@@ -20,19 +21,24 @@ def get_db():
         db.close()
 
 ### GETS MEMBROS: 
-@app.get("/membro/nome/{nome}", response_model=list[MembroBase])
-async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")]):
-        membros_lista = filtra_e_devolve_lista_membros("nome",nome)
-        if not membros_lista:
-            detalhe = "Não tem nenhum membro com esse nome"
-            raise HTTPException(status_code=400, detail=detalhe,)
-        return membros_lista
 
-@app.post("/membro",response_model=schemas.MembroCreate) 
-def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para envio das informações para serem adicionadas")], db: Session = Depends(get_db)):
-    return crud.create_membro(db=db,membro=membro)
+# @app.get("/membro/nome/{nome}", response_model=list[schemas.Membro])
+# async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")]):
+#         membros_lista = filtra_e_devolve_lista_membros("nome",nome)
+#         if not membros_lista:
+#             detalhe = "Não tem nenhum membro com esse nome"
+#             raise HTTPException(status_code=400, detail=detalhe,)
+#         return membros_lista
 
-# @app.get("/membro/ativo/{ativo}", response_model=list[MembroBase])
+@app.get("/membro/nome/{nome}", response_model=list[schemas.Membro])
+def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_nome(db, nome)
+    if membros_lista is None:
+        detalhe = "Não tem nenhum membro com esse nome"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
+
+# @app.get("/membro/ativo/{ativo}", response_model=list[Membro])
 # async def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example=1)]):
 #     membros_lista = filtra_e_devolve_lista_membros("ativo",ativo)
 #     if not membros_lista:
@@ -40,8 +46,15 @@ def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return membros_lista
 
+@app.get("/membro/ativo/{ativo}", response_model=list[schemas.Membro])
+def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example=1)], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_ativo(db, ativo)
+    if membros_lista is None:
+        detalhe = "Não tem nenhum membro com esse estado"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
 
-# @app.get("/membro/plano/{plano_id}", response_model=list[MembroBase])
+# @app.get("/membro/plano/{plano_id}", response_model=list[Membro])
 # async def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador que representa o id do plano que o membro faz parte", example="3")]):
 #     membros_lista = filtra_e_devolve_lista_membros("plano_id",plano_id)
 #     if not membros_lista:
@@ -49,7 +62,16 @@ def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return membros_lista
 
-# @app.get("/membro/id/{membro_id}", response_model=MembroBase)
+@app.get("/membro/plano/{plano_id}", response_model=list[schemas.Membro])
+def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador que representa o id do plano que o membro faz parte", example="3")], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_plano_id(db, plano_id)
+    if membros_lista is None:
+        detalhe = "Não tem nenhum membro com esse plano"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
+
+
+# @app.get("/membro/id/{membro_id}", response_model=Membro)
 # async def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example=1)]):
 #     for membro in membros:
 #         if membro["membro_id"] == membro_id:
@@ -58,6 +80,13 @@ def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para
 #     detalhe = "Não há nenhum membro com esse id :("
 #     raise HTTPException(status_code=400, detail=detalhe)
 
+@app.get("/membro/id/{membro_id}", response_model=schemas.Membro)
+def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example=1)], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_id(db, membro_id)
+    if membros_lista is None:
+        detalhe = "Não tem nenhum membro com esse id"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
 
 # @app.get("/membro/genero/{genero}", response_model=list[Membro])
 # async def listar_membros_de_um_genero(genero: Annotated[str, Path(title="Gênero do membro",description="Digite o genero com o qual o membro se identifica", example="Feminino")]):
@@ -67,6 +96,13 @@ def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return membros_lista
 
+@app.get("/membro/genero/{genero}", response_model=schemas.Membro)
+def devolve_informacoes_do_membro(genero: Annotated[str, Path(title="Gênero do membro",description="Digite o genero com o qual o membro se identifica", example="Feminino")], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_id(db, genero)
+    if membros_lista is None:
+        detalhe = "Não tem nenhum membro com esse genero"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
 
 # @app.get("/membro/restricao_medica", response_model=list[Membro])
 # async def listar_membros_com_restricao():
@@ -79,32 +115,24 @@ def adicionar_membro(membro: Annotated[MembroCreate,Body(description="Corpo para
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return membros_lista
 
-# @app.get("/membro/plano/nome/{nome}", response_model=list[Membro])
-# async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")]):
-#     nome = nome.lower() 
-#     id_plano = None
-#     for plano in planos:
-#         if plano["nome"].lower() == nome:
-#             id_plano = plano["plano_id"]
-#     if id_plano is None:
-#         detalhe = "Não existe nenhum plano com esse nome :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     membros_lista = filtra_e_devolve_lista_membros('plano_id',id_plano)
-#     if not membros_lista:
-#         detalhe = "Não existe ninguém cadastrado nesse plano :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
+@app.get("/membro/restricao_medica", response_model=schemas.Membro)
+def listar_membros_com_restricao(db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_restricao_medica(db)
+    if membros_lista is None:
+        detalhe = "Não existe ninguém com restrição médica"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
 
 
-# ### GETS PERSONAIS
-# @app.get("/personal/personal_id/{personal_id}", response_model=Personal)
-# async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)]):
-#     for personal in personais:
-#         if personal_id == personal["personal_id"]:
-#             response_personal = Personal(**personal)
-#             return response_personal
-#     detalhe = "Não tem nenhum personal com esse id"
-#     raise HTTPException(status_code=400, detail=detalhe)
+### GETS PERSONAIS
+@app.get("/personal/personal_id/{personal_id}", response_model=Personal)
+async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)]):
+    for personal in personais:
+        if personal_id == personal["personal_id"]:
+            response_personal = Personal(**personal)
+            return response_personal
+    detalhe = "Não tem nenhum personal com esse id"
+    raise HTTPException(status_code=400, detail=detalhe)
     
 
 # @app.get("/personal/genero/{genero}", response_model=list[Personal])
