@@ -124,14 +124,47 @@ def listar_membros_com_restricao(db: Session = Depends(get_db)):
     return membros_lista
 
 
+# @app.get("/membro/plano/nome/{nome}", response_model=list[Membro])
+# async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")]):
+#     nome = nome.lower() 
+#     id_plano = None
+#     for plano in planos:
+#         if plano["nome"].lower() == nome:
+#             id_plano = plano["plano_id"]
+#     if id_plano is None:
+#         detalhe = "Não existe nenhum plano com esse nome :("
+#         raise HTTPException(status_code=400, detail=detalhe)
+#     membros_lista = filtra_e_devolve_lista_membros('plano_id',id_plano)
+#     if not membros_lista:
+#         detalhe = "Não existe ninguém cadastrado nesse plano :("
+#         raise HTTPException(status_code=400, detail=detalhe)
+#     return membros_lista
 
-@app.post("/membro/", response_model=schemas.MembroBase)
-def create_user(membro: schemas.MembroBase, db: Session = Depends(get_db)):
-    return crud.create_membro(db=db, membro=membro)
+@app.get("/membro/plano/nome/{nome}", response_model=list[schemas.Membro])
+def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")], db: Session = Depends(get_db)):
+    membros_lista = crud.get_membro_plano_nome(db, plano_nome=nome)
+    if membros_lista is None:
+        detalhe = "Não existe nenhum plano com esse nome ou Não existe ninguém cadastrado nesse plano"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return membros_lista
 
-@app.post("/personal/", response_model=schemas.PersonalCreate)
-def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
-    return crud.create_personal(db=db, personal=personal)
+# ### GETS PERSONAIS
+# @app.get("/personal/personal_id/{personal_id}", response_model=Personal)
+# async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)]):
+#     for personal in personais:
+#         if personal_id == personal["personal_id"]:
+#             response_personal = Personal(**personal)
+#             return response_personal
+#     detalhe = "Não tem nenhum personal com esse id"
+#     raise HTTPException(status_code=400, detail=detalhe)
+    
+@app.get("/personal/personal_id/{personal_id}", response_model=schemas.Personal)
+def devolve_informacoes_do_membro(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)], db: Session = Depends(get_db)):
+    personal_lista = crud.get_personal_id(db, personal_id)
+    if personal_lista is None:
+        detalhe = "Não tem nenhum personal com esse id"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return personal_lista
 
 # @app.get("/personal/genero/{genero}", response_model=list[Personal])
 # async def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")]):
@@ -141,6 +174,13 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return personal_lista
 
+@app.get("/personal/genero/{genero}", response_model=list[schemas.Personal])
+def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")], db: Session = Depends(get_db)):
+    personal_lista = crud.get_personal_genero(db, genero)
+    if personal_lista is None:
+        detalhe = "Não tem nenhum personal com esse gênero"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return personal_lista
 
 # @app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Membro])
 # async def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example=1)]):
@@ -159,8 +199,15 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #     if not membros_lista:
 #         detalhe = "Nenhum membro tem esse personal"   
 #         raise HTTPException(status_code=400, detail=detalhe)     
-    
 #     return membros_lista
+
+@app.get("/personal/personal_id/{personal_id}/membros", response_model=list[schemas.Membro])
+def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example=1)], db: Session = Depends(get_db)):
+    personal_lista = crud.get_personal_membros(db, personal_id)
+    if personal_lista is None:
+        detalhe = "Não existe um personal com esse id ou Nenhum membro tem esse personal"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return personal_lista
 
 # @app.get("/personal/nome/{nome}", response_model=list[Personal])
 # async def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um personal da academia",description="Escreva o nome do personal e receba uma lista com todos os personais que tem o nome escolhido", example="Fulano")]):
@@ -170,6 +217,14 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return personal_lista
     
+@app.get("/personal/nome/{nome}", response_model=list[schemas.Personal])
+def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um personal da academia",description="Escreva o nome do personal e receba uma lista com todos os personais que tem o nome escolhido", example="Fulano")], db: Session = Depends(get_db)):
+    personal_lista = crud.get_personal_nome(db, nome)
+    if personal_lista is None:
+        detalhe = "Não existe nenhum personal com esse nome"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return personal_lista
+
 # @app.get("/personal/membro/{membro_id}", response_model=Personal)
 # async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example=1)]):
 #     personal_id = None
@@ -188,7 +243,13 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #     detalhe = "Não existe um id para o personal ligado ao membro ;-;"
 #     raise HTTPException(status_code=400, detail=detalhe)
     
-
+@app.get("/personal/membro/{membro_id}", response_model=list[schemas.Personal])
+def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example=1)], db: Session = Depends(get_db)):
+    personal_lista = crud.get_personal_membro_id(db, membro_id)
+    if personal_lista is None:
+        detalhe = "Não existe um id para o personal ligado ao membro"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return personal_lista
 
 # ### GET PLANOS
 # @app.get("/plano/plano_id/{plano_id}/membros", response_model=list[Membro])
@@ -382,7 +443,9 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #         json.dump(data, arquivo, indent=4,default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
 #     return membro
 
-
+@app.post("/membro/", response_model=schemas.MembroBase)
+def create_user(membro: schemas.MembroBase, db: Session = Depends(get_db)):
+    return crud.create_membro(db=db, membro=membro)
 
 # @app.post("/plano",status_code=201, response_model=Plano)
 # async def adicionar_plano(plano:Annotated[Plano,Body(description="Corpo para envio das informações para serem adicionadas")]):
@@ -400,6 +463,10 @@ def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
 #     with open(file_json, "w") as arquivo:
 #         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
 #     return personal
+
+@app.post("/personal/", response_model=schemas.PersonalCreate)
+def create_user(personal: schemas.PersonalBase, db: Session = Depends(get_db)):
+    return crud.create_personal(db=db, personal=personal)
 
 # # PUTS :
 
