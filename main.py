@@ -22,13 +22,6 @@ def get_db():
 
 ### GETS MEMBROS: 
 
-# @app.get("/membro/nome/{nome}", response_model=list[schemas.Membro])
-# async def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")]):
-#         membros_lista = filtra_e_devolve_lista_membros("nome",nome)
-#         if not membros_lista:
-#             detalhe = "Não tem nenhum membro com esse nome"
-#             raise HTTPException(status_code=400, detail=detalhe,)
-#         return membros_lista
 
 @app.get("/membro/nome/{nome}", response_model=list[schemas.MembroCreate])
 def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro da academia",description="Escreva o nome do membro e receba uma lista com todos os membros que tem o nome escolhido", example="Fulano")], db: Session = Depends(get_db)):
@@ -38,13 +31,6 @@ def listar_membros_por_nome(nome: Annotated[str, Path(title="Nome de um membro d
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
 
-# @app.get("/membro/ativo/{ativo}", response_model=list[Membro])
-# async def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example=1)]):
-#     membros_lista = filtra_e_devolve_lista_membros("ativo",ativo)
-#     if not membros_lista:
-#         detalhe = "Não tem nenhum membro com esse estado"
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
 
 @app.get("/membro/ativo/{ativo}", response_model=list[schemas.MembroCreate])
 def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou inativo do membro",description="0 para membros inativos e 1 para membros ativos", example=1)], db: Session = Depends(get_db)):
@@ -54,13 +40,6 @@ def listar_membros_por_estado(ativo: Annotated[int, Path(title="Estado ativo ou 
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
 
-# @app.get("/membro/plano/{plano_id}", response_model=list[Membro])
-# async def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador que representa o id do plano que o membro faz parte", example="3")]):
-#     membros_lista = filtra_e_devolve_lista_membros("plano_id",plano_id)
-#     if not membros_lista:
-#         detalhe = "Não tem nenhum membro com esse plano"
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
 
 @app.get("/membro/plano/{plano_id}", response_model=list[schemas.MembroCreate])
 def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador que representa o id do plano que o membro faz parte", example="3")], db: Session = Depends(get_db)):
@@ -70,16 +49,6 @@ def listar_membros_por_planoID(plano_id: Annotated[int, Path(title="Identificado
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
 
-
-# @app.get("/membro/id/{membro_id}", response_model=Membro)
-# async def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example=1)]):
-#     for membro in membros:
-#         if membro["membro_id"] == membro_id:
-#             response_membro = Membro(**membro)
-#             return response_membro
-#     detalhe = "Não há nenhum membro com esse id :("
-#     raise HTTPException(status_code=400, detail=detalhe)
-
 @app.get("/membro/id/{membro_id}", response_model=schemas.MembroCreate)
 def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador que representa o id do membro", example=1)], db: Session = Depends(get_db)):
     membros_lista = crud.get_membro_id(db, membro_id)
@@ -87,14 +56,6 @@ def devolve_informacoes_do_membro(membro_id: Annotated[int, Path(title="Identifi
         detalhe = "Não tem nenhum membro com esse id"
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
-
-# @app.get("/membro/genero/{genero}", response_model=list[Membro])
-# async def listar_membros_de_um_genero(genero: Annotated[str, Path(title="Gênero do membro",description="Digite o genero com o qual o membro se identifica", example="Feminino")]):
-#     membros_lista = filtra_e_devolve_lista_membros("genero",genero)
-#     if not membros_lista: 
-#         detalhe = "Não existe ninguém cadastrado com esse gênero :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
 
 @app.get("/membro/genero/{genero}", response_model=list[schemas.MembroCreate])
 def devolve_informacoes_do_membro(genero: Annotated[str, Path(title="Gênero do membro",description="Digite o genero com o qual o membro se identifica", example="Feminino")], db: Session = Depends(get_db)):
@@ -104,17 +65,6 @@ def devolve_informacoes_do_membro(genero: Annotated[str, Path(title="Gênero do 
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
 
-# @app.get("/membro/restricao_medica", response_model=list[Membro])
-# async def listar_membros_com_restricao():
-#     membros_lista = []
-#     for membro in membros:
-#         if membro["restricao_medica"].lower() != "nenhuma":
-#             membros_lista.append(Membro(**membro))
-#     if not membros_lista:
-#         detalhe = "Não existe ninguém com restrição médica :)"
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
-
 @app.get("/membro/restricao_medica", response_model=list[schemas.MembroCreate])
 def listar_membros_com_restricao(db: Session = Depends(get_db)):
     membros_lista = crud.get_membro_restricao_medica(db)
@@ -122,23 +72,6 @@ def listar_membros_com_restricao(db: Session = Depends(get_db)):
         detalhe = "Não existe ninguém com restrição médica"
         raise HTTPException(status_code=400, detail=detalhe,)
     return membros_lista
-
-
-# @app.get("/membro/plano/nome/{nome}", response_model=list[Membro])
-# async def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")]):
-#     nome = nome.lower() 
-#     id_plano = None
-#     for plano in planos:
-#         if plano["nome"].lower() == nome:
-#             id_plano = plano["plano_id"]
-#     if id_plano is None:
-#         detalhe = "Não existe nenhum plano com esse nome :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     membros_lista = filtra_e_devolve_lista_membros('plano_id',id_plano)
-#     if not membros_lista:
-#         detalhe = "Não existe ninguém cadastrado nesse plano :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return membros_lista
 
 @app.get("/membro/plano/nome/{nome}", response_model=list[schemas.MembroBase])
 def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para listar os membros que fazem parte do plano escolhido", example="Intensivo")], db: Session = Depends(get_db)):
@@ -149,14 +82,6 @@ def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano"
     return membros_lista
 
 # ### GETS PERSONAIS
-# @app.get("/personal/personal_id/{personal_id}", response_model=Personal)
-# async def personal_por_personalID(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)]):
-#     for personal in personais:
-#         if personal_id == personal["personal_id"]:
-#             response_personal = Personal(**personal)
-#             return response_personal
-#     detalhe = "Não tem nenhum personal com esse id"
-#     raise HTTPException(status_code=400, detail=detalhe)
     
 @app.get("/personal/personal_id/{personal_id}", response_model=schemas.PersonalBase)
 def devolve_informacoes_do_membro(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)], db: Session = Depends(get_db)):
@@ -166,14 +91,6 @@ def devolve_informacoes_do_membro(personal_id: Annotated[int, Path(title="Identi
         raise HTTPException(status_code=400, detail=detalhe,)
     return personal_lista
 
-# @app.get("/personal/genero/{genero}", response_model=list[Personal])
-# async def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")]):
-#     personal_lista = filtra_e_devolve_lista_personais("genero",genero)
-#     if not personal_lista:
-#         detalhe = "Não tem nenhum personal com esse gênero"
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return personal_lista
-
 @app.get("/personal/genero/{genero}", response_model=list[schemas.PersonalBase])
 def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do personal",description="Digite o genero com o qual o personal se identifica", example="Masculino")], db: Session = Depends(get_db)):
     personal_lista = crud.get_personal_genero(db, genero)
@@ -182,25 +99,6 @@ def listar_personal_por_genero(genero: Annotated[str, Path(title="Gênero do per
         raise HTTPException(status_code=400, detail=detalhe,)
     return personal_lista
 
-# @app.get("/personal/personal_id/{personal_id}/membros", response_model=list[Membro])
-# async def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example=1)]):
-#     personal_membros_dict = {}
-#     membros_lista = []
-#     personalId = 0
-#     for personal in personais:
-#         if personal_id == personal["personal_id"]:
-#             personalId = personal["personal_id"] 
-#     if personalId != 0:
-#         membros_lista = filtra_e_devolve_lista_membros("personal_id",personal_id)
-#         personal_membros_dict[personal_id] = membros_lista
-#     else:
-#         detalhe = "Não existe um personal com esse id"
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     if not membros_lista:
-#         detalhe = "Nenhum membro tem esse personal"   
-#         raise HTTPException(status_code=400, detail=detalhe)     
-#     return membros_lista
-
 @app.get("/personal/personal_id/{personal_id}/membros", response_model=list[schemas.MembroBase])
 def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para listar os membros que esse personal acompanha", example=1)], db: Session = Depends(get_db)):
     personal_lista = crud.get_personal_membros(db, personal_id)
@@ -208,14 +106,6 @@ def listar_membros_com_personal_id(personal_id: Annotated[int, Path(title="Ident
         detalhe = "Não existe um personal com esse id ou Nenhum membro tem esse personal"
         raise HTTPException(status_code=400, detail=detalhe,)
     return personal_lista
-
-# @app.get("/personal/nome/{nome}", response_model=list[Personal])
-# async def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um personal da academia",description="Escreva o nome do personal e receba uma lista com todos os personais que tem o nome escolhido", example="Fulano")]):
-#     personal_lista = filtra_e_devolve_lista_personais("nome",nome)
-#     if not personal_lista:
-#         detalhe = "Não existe nenhum personal com esse nome :("
-#         raise HTTPException(status_code=400, detail=detalhe)
-#     return personal_lista
     
 @app.get("/personal/nome/{nome}", response_model=list[schemas.PersonalBase])
 def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um personal da academia",description="Escreva o nome do personal e receba uma lista com todos os personais que tem o nome escolhido", example="Fulano")], db: Session = Depends(get_db)):
@@ -224,24 +114,6 @@ def listar_personais_por_nome(nome: Annotated[str, Path(title="Nome de um person
         detalhe = "Não existe nenhum personal com esse nome"
         raise HTTPException(status_code=400, detail=detalhe,)
     return personal_lista
-
-# @app.get("/personal/membro/{membro_id}", response_model=Personal)
-# async def informacoes_personal_de_um_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example=1)]):
-#     personal_id = None
-#     for membro in membros:
-#         if membro['membro_id'] == membro_id:
-#             if membro["personal_id"] != None:
-#                 personal_id = membro["personal_id"]
-#             else:
-#                 detalhe = "O membro não tem nenhum personal :("
-#                 raise HTTPException(status_code=400, detail=detalhe)
-#     for personal in personais:
-#         if personal["personal_id"] == personal_id:
-#             print(personal)
-#             response_personal = Personal(**personal)
-#             return response_personal
-#     detalhe = "Não existe um id para o personal ligado ao membro ;-;"
-#     raise HTTPException(status_code=400, detail=detalhe)
     
 @app.get("/personal/membro/{membro_id}", response_model=list[schemas.PersonalBase])
 def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para receber as informações do personal que acompanha o membro", example=1)], db: Session = Depends(get_db)):
@@ -347,8 +219,27 @@ def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificado
 #     return dicio
 
 # ### DELETES:
-# @app.delete("/membro/{membro_id}", response_model=list[Membro])
-# async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example=1)]):
+@app.delete("/membro/{membro_id}", response_model=list[MembroCreate])
+def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example=1)], db: Session = Depends(get_db)):
+    if crud.deletar_membro(db=db, membro_id=membro_id):
+        return db.query(models.Membro).all()
+    detalhe = "Não foi encontrado nenhum membro com esse id"
+    raise HTTPException(status_code=400, detail=detalhe)
+
+@app.delete("/personal/{personal_id}", response_model=list[PersonalCreate])
+def deletar_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para deletar o personal escolhido", example=1)], db: Session = Depends(get_db)):
+    if crud.deletar_personal(db=db, personal_id=personal_id):
+        return db.query(models.Personal).all()
+    detalhe = "Não foi encontrado nenhum personal com esse id"
+    raise HTTPException(status_code=400, detail=detalhe)
+
+@app.delete("/plano/{plano_id}", response_model=list[PlanoCreate])
+def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para deletar o plano escolhido", example=1)], db: Session = Depends(get_db)):
+    if crud.deletar_plano(db=db, plano_id=plano_id):
+        return db.query(models.Plano).all()
+    detalhe = "Não foi encontrado nenhum plano com esse id"
+    raise HTTPException(status_code=400, detail=detalhe)
+
 #     membro_list = []
 #     membro_existe = None
 #     for membro in membros:

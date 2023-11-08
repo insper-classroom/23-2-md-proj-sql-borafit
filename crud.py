@@ -93,6 +93,33 @@ def create_plano(db: Session, plano: schemas.PlanoCreate):
     db.refresh(db_plano)
     return db_plano
 
+
+
+
+def deletar_membro(db: Session, membro_id: int):
+    user_to_delete = db.query(models.Membro).filter(models.Membro.membro_id == membro_id).first()
+    if user_to_delete:
+        db.delete(user_to_delete)
+        db.commit()
+        return True
+    return False
+
+def deletar_personal(db: Session, personal_id: int):
+    user_to_delete = db.query(models.Personal).filter(models.Personal.personal_id == personal_id).first()
+    if user_to_delete:
+        db.delete(user_to_delete)
+        db.commit()
+        return True
+    return False
+
+def deletar_plano(db: Session, plano_id: int):
+    user_to_delete = db.query(models.Plano).filter(models.Plano.plano_id == plano_id).first()
+    if user_to_delete:
+        db.delete(user_to_delete)
+        db.commit()
+        return True
+    return False
+
 '''
 /membro/plano/{nome}                .
 /personal/{personal_id}/membros     .
