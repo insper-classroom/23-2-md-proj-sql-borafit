@@ -1,5 +1,4 @@
 # 23-2-md-proj-sql-borafit
-23-2-md-proj-sql-borafit created by GitHub Classroom
 
 Membros: Lincoln e Giovana
 
@@ -27,9 +26,10 @@ password=os.getenv('MD_DB_PASSWORD')
 database_name = "edite_aqui" 
 ...
 ```
-4 - Após adicionar o .env e nomear o banco de dados rode o comando:
+4 - Após adicionar o .env e nomear o banco de dados rode os comandos:
 ```
-uvicorn main:app --reload
+cd ./projeto # Aonde está o projeto
+uvicorn main:app --reload # Para rodar o servidor
 ```
 Ele irá rodar o seu servidor , por padrão, em : http://127.0.0.1:8000 ou http://localhost:8000
 
