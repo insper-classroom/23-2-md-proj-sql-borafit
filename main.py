@@ -171,7 +171,13 @@ def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificado
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return planos_list
 
-
+@app.get("/plano/aulas_em_grupo", response_model=list[schemas.PlanoBase])
+def listar_membros_com_restricao(db: Session = Depends(get_db)):
+    planos_lista = crud.get_plano_com_aulas_em_grupo(db)
+    if planos_lista is None:
+        detalhe = "Não há nenhuma aula em grupo"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return planos_lista
 
 # @app.get("/plano/id/{plano_id}", response_model=Plano)
 # async def informacoes_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para ver as informações do plano escolhido", example=1)]):
@@ -181,16 +187,30 @@ def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificado
 #     detalhe = "Não existe um plano com o esse id :("
 #     raise HTTPException(status_code=400, detail=detalhe)
 
+@app.get("/plano/id/{plano_id}", response_model=schemas.PlanoBase)
+def informacoes_plano_id(plano_id: Annotated[int, Path(title="Identificador do plano",description="Coloque o identificador do plano para ver as informações do plano escolhido", example=1)], db: Session = Depends(get_db)):
+    planos_lista = crud.get_plano_id(db, plano_id)
+    if planos_lista is None:
+        detalhe = "Não existe um plano com o esse id"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return planos_lista
+
 # @app.get("/plano/nome/{nome}", response_model=Plano)
 # async def infomacoes_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para ver as informações do plano escolhido", example="basico")]):
 #     nome = nome.lower() 
 #     for plano in planos:
 #         if plano["nome"].lower() == nome:
 #             return Plano(**plano)
-        
 #     detalhe = "Não existe nenhum plano com esse nome :("
 #     raise HTTPException(status_code=400, detail=detalhe)
     
+@app.get("/plano/nome/{nome}", response_model=list[schemas.PlanoBase])
+def infomacoes_plano_nome(nome: Annotated[str, Path(title="Nome do plano",description="Coloque o nome do plano para ver as informações do plano escolhido", example="basico")], db: Session = Depends(get_db)):
+    planos_lista = crud.get_plano_nome(db, nome)
+    if planos_lista is None:
+        detalhe = "Não tem nenhum membro com esse nome"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return planos_lista
 
 # @app.get("/plano/promocao", response_model=list[Plano])
 # async def plano_promocao():
@@ -203,20 +223,13 @@ def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificado
 #         raise HTTPException(status_code=400, detail=detalhe)
 #     return planos_list
 
-
-# def filtro_membro_caracteristicas(caracteristica,filtro):
-#     dicio = {}
-#     for membro in membros:
-#         if membro[f'{caracteristica}'].lower() == filtro:
-#             dicio[membro["membro_id"]] = f"{membro['nome']} {membro['sobrenome']}"
-#     return dicio
-
-# def filtra_personal_caracteristica(caracteristica,filtro):
-#     dicio = {}
-#     for personal in personais:
-#         if personal[f'{caracteristica}'].lower() == filtro:
-#             dicio[personal["personal_id"]] = f"{personal['nome']} {personal['sobrenome']}"
-#     return dicio
+@app.get("/plano/promocao", response_model=list[schemas.PlanoBase])
+def listar_membros_com_restricao(db: Session = Depends(get_db)):
+    planos_lista = crud.get_plano_com_promocao(db)
+    if planos_lista is None:
+        detalhe = "Nao tem nenhum plano com promocao"
+        raise HTTPException(status_code=400, detail=detalhe,)
+    return planos_lista
 
 # ### DELETES:
 @app.delete("/membro/{membro_id}", response_model=list[MembroCreate])
@@ -240,6 +253,9 @@ def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",d
     detalhe = "Não foi encontrado nenhum plano com esse id"
     raise HTTPException(status_code=400, detail=detalhe)
 
+# ### DELETES:
+# @app.delete("/membro/{membro_id}", response_model=list[Membro])
+# async def deletar_membro(membro_id: Annotated[int, Path(title="Identificador do membro",description="Coloque o identificador do membro para deletar o membro escolhido", example=1)]):
 #     membro_list = []
 #     membro_existe = None
 #     for membro in membros:
@@ -260,7 +276,6 @@ def deletar_plano(plano_id: Annotated[int, Path(title="Identificador do plano",d
 #     for membro in membros:
 #         membro_list.append(Membro(**membro))  
 #     return membro_list
-
 
 # @app.delete("/personal/{personal_id}",response_model=list[Personal])
 # async def deletar_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador do personal para deletar o personal escolhido", example=1)]):
@@ -348,6 +363,9 @@ def create_user(membro: Annotated[schemas.MembroBase,Body(description="Corpo par
 #         json.dump(data, arquivo, indent=4, default=serializar_datetime)  # indent=4 para formatar o JSON de forma legível
 #     return plano
 
+@app.post("/plano/", response_model=schemas.PlanoCreate)
+def create_plano(plano: Annotated[schemas.PlanoBase,Body(description="Corpo para envio das informações para serem adicionadas")], db: Session = Depends(get_db)):
+    return crud.create_plano(db=db, plano=plano)
 
 # @app.post("/personal",status_code=201,response_model=Personal)
 # async def adicionar_personal(personal: Annotated[Personal,Body(description="Corpo para envio das informações para serem adicionadas")]):
@@ -360,10 +378,6 @@ def create_user(membro: Annotated[schemas.MembroBase,Body(description="Corpo par
 @app.post("/personal/", response_model=schemas.PersonalCreate)
 def create_personal(personal: Annotated[schemas.PersonalBase,Body(description="Corpo para envio das informações para serem adicionadas")], db: Session = Depends(get_db)):
     return crud.create_personal(db=db, personal=personal)
-
-@app.post("/plano/", response_model=schemas.PlanoCreate)
-def create_plano(plano: Annotated[schemas.PlanoBase,Body(description="Corpo para envio das informações para serem adicionadas")], db: Session = Depends(get_db)):
-    return crud.create_plano(db=db, plano=plano)
 
 
 # # PUTS :
