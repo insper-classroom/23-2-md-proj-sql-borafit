@@ -1,12 +1,9 @@
-from pydantic import BaseModel, Field  
 from fastapi import FastAPI,  HTTPException, Path,Body,Depends
-from datetime import datetime ,date
 from sqlalchemy.orm import Session
 from typing import Annotated
 from database import SessionLocal, engine
 import crud, models, schemas
 from schemas import *
-
 models.Base.metadata.create_all(bind=engine)
 from sqlalchemy.orm import Session
 app = FastAPI()

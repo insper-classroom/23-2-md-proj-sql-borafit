@@ -1,8 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.sql import text
 import os
 from dotenv import load_dotenv
 from sqlalchemy_utils import create_database, database_exists
@@ -12,7 +10,7 @@ load_dotenv(override=True)
 host=os.getenv('MD_DB_SERVER')
 user=os.getenv('MD_DB_USERNAME')
 password=os.getenv('MD_DB_PASSWORD')
-database_name = "outro"
+database_name = "edite_aqui"
 
 SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{user}:{password}@{host}/{database_name}"
 
