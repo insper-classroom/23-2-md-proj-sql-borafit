@@ -43,5 +43,6 @@ Quando iniciado será criado um banco de Dados seguindo o diagrama :
 
 link para o vídeo entrega1: https://youtu.be/ALvt-iEDa_g
 
-Link para o vídeo entrega2:  
+Link para o vídeo entrega2: https://youtu.be/esMJJUBcLqk
+
 
