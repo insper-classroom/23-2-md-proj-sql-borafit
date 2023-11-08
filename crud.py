@@ -24,8 +24,9 @@ def get_membro_restricao_medica(db: Session):
 
 
 def get_membro_plano_nome(db: Session, plano_nome: str):
-    #Ainda não sei se isso daqui está funcionando
     aux = db.query(models.Plano).filter(models.Plano.nome == plano_nome).first()
+    if aux is None:
+        return None
     return db.query(models.Membro).filter(models.Membro.plano_id == aux.plano_id).all()
 
 
@@ -41,10 +42,14 @@ def get_personal_genero(db: Session, genero: int):
 
 def get_personal_membros(db: Session, personal_id: int):
     aux = db.query(models.Personal).filter(models.Personal.personal_id == personal_id).first()
-    return db.query(models.Membro).filter(models.Membro.membro_id in aux).first()
+    if aux is None:
+        return None
+    return db.query(models.Membro).filter(models.Membro.personal_id == aux.personal_id).all()
 
 def get_personal_membro_id(db: Session, membro_id: int):
     aux = db.query(models.Membro).filter(models.Membro.membro_id == membro_id).first()
+    if aux is None:
+        return None
     return db.query(models.Personal).filter(models.Personal.personal_id == aux.personal_id).all()
 
 
