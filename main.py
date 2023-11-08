@@ -84,7 +84,7 @@ def listar_membros_do_plano_nome(nome: Annotated[str, Path(title="Nome do plano"
 # ### GETS PERSONAIS
     
 @app.get("/personal/personal_id/{personal_id}", response_model=schemas.PersonalBase)
-def devolve_informacoes_do_membro(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)], db: Session = Depends(get_db)):
+def devolve_informacoes_do_personal(personal_id: Annotated[int, Path(title="Identificador do personal",description="Coloque o identificador que representa o id do personal", example=1)], db: Session = Depends(get_db)):
     personal_lista = crud.get_personal_id(db, personal_id)
     if personal_lista is None:
         detalhe = "Não tem nenhum personal com esse id"
@@ -172,7 +172,7 @@ def listar_personais_por_nome(membro_id: Annotated[int, Path(title="Identificado
 #     return planos_list
 
 @app.get("/plano/aulas_em_grupo", response_model=list[schemas.PlanoBase])
-def listar_membros_com_restricao(db: Session = Depends(get_db)):
+def listar_planos_com_aulas_em_grupo(db: Session = Depends(get_db)):
     planos_lista = crud.get_plano_com_aulas_em_grupo(db)
     if planos_lista is None:
         detalhe = "Não há nenhuma aula em grupo"
@@ -224,7 +224,7 @@ def infomacoes_plano_nome(nome: Annotated[str, Path(title="Nome do plano",descri
 #     return planos_list
 
 @app.get("/plano/promocao", response_model=list[schemas.PlanoBase])
-def listar_membros_com_restricao(db: Session = Depends(get_db)):
+def listar_planos_com_promocao(db: Session = Depends(get_db)):
     planos_lista = crud.get_plano_com_promocao(db)
     if planos_lista is None:
         detalhe = "Nao tem nenhum plano com promocao"
@@ -382,6 +382,27 @@ def create_personal(personal: Annotated[schemas.PersonalBase,Body(description="C
 
 # # PUTS :
 
+@app.put("/membros/{membro_id}", response_model=schemas.MembroBase)
+def update_membro(membro_id: int, membro_update: schemas.MembroUpdate, db: Session = Depends(get_db)):
+    aux = crud.update_membro(membro_id=membro_id,db=db,membro_update=membro_update)
+    if aux is None:
+        raise HTTPException(status_code=404, detail="Membro não encontrado")
+    return crud.get_membro_id(db=db,membro_id=membro_id)
+
+
+@app.put("/personal/{personal_id}", response_model=schemas.PersonalBase)
+def update_personal(personal_id: int, personal_update: schemas.PersonalUpdate, db: Session = Depends(get_db)):
+    aux = crud.update_personal(personal_id=personal_id,db=db,personal_update=personal_update)
+    if aux is None:
+        raise HTTPException(status_code=404, detail="Personal não encontrado")
+    return crud.get_personal_id(db=db,personal_id=personal_id)
+
+@app.put("/plano/{plano_id}", response_model=schemas.PlanoBase)
+def update_plano(plano_id: int, plano_update: schemas.PlanoUpdate, db: Session = Depends(get_db)):
+    aux = crud.update_plano(plano_id=plano_id,db=db,plano_update=plano_update)
+    if aux is None:
+        raise HTTPException(status_code=404, detail="plano não encontrado")
+    return crud.get_plano_id(db=db,plano_id=plano_id)
 
 # @app.put("/membro/{membro_id}",response_model=MembroUpdate)
 # async def update_membro(membro_id: int, membro: Annotated[MembroUpdate,Body(description="Corpo para envio das informações a serem alteradas")]):

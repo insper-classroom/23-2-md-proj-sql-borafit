@@ -120,6 +120,40 @@ def deletar_plano(db: Session, plano_id: int):
         return True
     return False
 
+def update_membro(db: Session, membro_id: int,membro_update: schemas.MembroUpdate):
+    db_membro = db.query(models.Membro).filter(models.Membro.membro_id == membro_id).first()
+    if db_membro is None:
+        return None
+    for key, value in membro_update.dict().items():
+        setattr(db_membro, key, value)
+    db.commit()
+    db.refresh(db_membro)
+    return True
+
+def update_personal(db: Session, personal_id: int,personal_update: schemas.PersonalUpdate):
+    db_personal = db.query(models.Personal).filter(models.Personal.personal_id == personal_id).first()
+    print(db_personal)
+    if db_personal is None:
+        return None
+    for key, value in personal_update.dict().items():
+        setattr(db_personal, key, value)
+    db.commit()
+    db.refresh(db_personal)
+    return True
+
+
+def update_plano(db: Session, plano_id: int,plano_update: schemas.PlanoUpdate):
+    db_plano = db.query(models.Plano).filter(models.Plano.plano_id == plano_id).first()
+    print(db_plano)
+    if db_plano is None:
+        return None
+    for key, value in plano_update.dict().items():
+        setattr(db_plano, key, value)
+    db.commit()
+    db.refresh(db_plano)
+    return True
+
+
 '''
 /membro/plano/{nome}                .
 /personal/{personal_id}/membros     .
