@@ -38,8 +38,6 @@ class MembroBase(BaseModel):
         from_attributes = True
         json_schema = model_config_Membro["json_schema_extra"]
     
-
-
 class MembroCreate(MembroBase):
     membro_id: int | None
 
@@ -103,6 +101,18 @@ class PersonalBase(BaseModel):
 class PersonalCreate(PersonalBase):
     personal_id: int | None
 
+model_config_membro_update = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "plano_id" : 1,
+                "personal_id": 1,
+                "restrição_medica": "Problema na coluna"
+            }
+        ]
+    }
+}
+
 class MembroUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome do membro,precisa ter pelo menos duas letras", default=None,examples=["Raul"])
     sobrenome: str | None = Field(min_length = 2, description="Sobrenome do membro, precisa ter pelo menos duas letras", default=None,examples=["Silva"])
@@ -114,17 +124,21 @@ class MembroUpdate(BaseModel):
     personal_id: int | None = Field(default=None,gt=0, description="Colocando o id do personal", examples =[1])
     restricao_medica: str | None = Field(description="Informações sobre restrições médicas a serem seguidas por um membro", examples =["Problema no joelho"], default=None)
     ultima_presenca: date | None = Field(default = None, description="Ultimo dia que o membro frequentou a academia")
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "plano_id" : 1,
-                    "personal_id": 1,
-                    "restrição_medica": "Problema na coluna"
-                }
-            ]
-        }
+    class Config:
+        from_attributes = True
+        json_schema = model_config_membro_update["json_schema_extra"]
+
+model_config_personal_update = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "membro_id" : [3],
+                "telefone" : "88938472651",
+                "salario": 2900.0
+            }
+        ]
     }
+}
 
 class PersonalUpdate(BaseModel):
     nome: str | None = Field(min_length = 2, description="Nome precisa ter pelo menos duas letras", default=None, examples=["Roberta"])
@@ -134,17 +148,20 @@ class PersonalUpdate(BaseModel):
     telefone: str | None = Field(pattern=r'^\d*$', max_length=11,description="O telefone deve ter 11 dígitos DDD+9+número , sem espaços!", default=None)
     email: str | None = Field(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$',description="O email deve ser válido", default=None)
     salario: float | None = Field(gt=0, description="O salário precisa ser maior que zero!", default=None)
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "membro_id" : [3],
-                    "telefone" : "88938472651",
-                    "salario": 2900.0
-                }
-            ]
-        }
+    class Config:
+        from_attributes = True
+        json_schema = model_config_personal_update["json_schema_extra"]
+
+model_config_plano_update = {
+    "json_schema_extra": {
+        "examples": [
+            {
+                "preco" : 150.0,
+                "promocao" :0
+            }
+        ]
     }
+}
 
 class PlanoUpdate(BaseModel):
     nome: str | None = None
@@ -152,16 +169,10 @@ class PlanoUpdate(BaseModel):
     preco: float | None = Field(default=None,gt=0, description="O preço precisa ser maior que zero!",examples=[100])
     aulas_em_grupo: int | None = Field(default=None, description="0: se não oferece aulas em grupo e 1: se oferece aulas em grupo", examples = [0])
     promocao: int | None = Field( default=None,description="0: se o plano não está em promoção e 1: se o plano está em promoção",  examples = [1])
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "preco" : 150.0,
-                    "promocao" :0
-                }
-            ]
-        }
-    }
+    class Config:
+        from_attributes = True
+        json_schema = model_config_plano_update["json_schema_extra"]
+
 
 
 
