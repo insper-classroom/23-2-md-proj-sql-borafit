@@ -66,8 +66,17 @@ def get_plano_com_aulas_em_grupo(db: Session):
 def get_plano_com_promocao(db: Session):
     return db.query(models.Plano).filter(models.Plano.promocao == 1).all()
 
+def get_plano_id_membros(db: Session, plano_id: int):
+    aux = db.query(models.Plano).filter(models.Plano.plano_id == plano_id).first()
+    if aux is None:
+        return None
+    return db.query(models.Membro).filter(models.Membro.plano_id == plano_id).all()
 
-
+def get_plano_nome_membros(db: Session, nome: str):
+    aux = db.query(models.Plano).filter(models.Plano.nome == nome).first()
+    if aux is None:
+        return None
+    return db.query(models.Membro).filter(models.Membro.plano_id == aux.plano_id).all()
 
 # Creates - POSTS
 def create_membro(db: Session, membro: schemas.MembroCreate):
@@ -94,7 +103,7 @@ def create_plano(db: Session, plano: schemas.PlanoCreate):
     return db_plano
 
 
-
+# Deletes
 
 def deletar_membro(db: Session, membro_id: int):
     user_to_delete = db.query(models.Membro).filter(models.Membro.membro_id == membro_id).first()
@@ -120,6 +129,8 @@ def deletar_plano(db: Session, plano_id: int):
         return True
     return False
 
+# Updates
+
 def update_membro(db: Session, membro_id: int,membro_update: schemas.MembroUpdate):
     db_membro = db.query(models.Membro).filter(models.Membro.membro_id == membro_id).first()
     if db_membro is None:
@@ -141,7 +152,6 @@ def update_personal(db: Session, personal_id: int,personal_update: schemas.Perso
     db.refresh(db_personal)
     return True
 
-
 def update_plano(db: Session, plano_id: int,plano_update: schemas.PlanoUpdate):
     db_plano = db.query(models.Plano).filter(models.Plano.plano_id == plano_id).first()
     print(db_plano)
@@ -152,16 +162,3 @@ def update_plano(db: Session, plano_id: int,plano_update: schemas.PlanoUpdate):
     db.commit()
     db.refresh(db_plano)
     return True
-
-
-'''
-/membro/plano/{nome}                .
-/personal/{personal_id}/membros     .
-/personal/membro/{membro_id}        .
-/plano/{plano_id}/membros
-/plano/{nome}/membros
-
-POSTS
-DELETES
-PUTS
-'''
